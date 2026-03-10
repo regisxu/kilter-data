@@ -1,0 +1,275 @@
+{
+  "users": [
+    {
+      "activities": [],
+      "avatar_image": null,
+      "circuits": [
+        {
+          "color": "00CC00",
+          "count": 280,
+          "created_at": "2022-08-04 11:13:51.268583",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "40",
+          "updated_at": "2026-03-06 03:34:14.139254",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "f4af1c507c524e14ac28914819e94e8f"
+        },
+        {
+          "color": "FF8000",
+          "count": 1,
+          "created_at": "2025-07-15 01:42:49.557532",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "4x4",
+          "updated_at": "2025-07-15 12:35:02.149349",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "c1ca28b969fb4657868c68680b00944b"
+        },
+        {
+          "color": "FF00FF",
+          "count": 37,
+          "created_at": "2025-02-27 02:11:38.624797",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Benchmark",
+          "updated_at": "2026-02-21 08:25:50.833971",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "602af5a60aac4e0e9bce7d8531827517"
+        },
+        {
+          "color": "FF8000",
+          "count": 5,
+          "created_at": "2026-03-03 01:53:05.780415",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Campus",
+          "updated_at": "2026-03-03 01:55:38.114380",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "c909a603a8cb447eb149dcc0d447b263"
+        },
+        {
+          "color": "808080",
+          "count": 37,
+          "created_at": "2025-04-21 06:43:56.878904",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Collection",
+          "updated_at": "2026-03-04 11:13:46.909886",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "e27373d6e67a470c838a25384f49b867"
+        },
+        {
+          "color": "0000FF",
+          "count": 232,
+          "created_at": "2022-02-08 12:45:20.805179",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Good",
+          "updated_at": "2026-03-06 03:34:14.120861",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "14d39937478745acbdde2cbd959141f8"
+        },
+        {
+          "color": "8000FF",
+          "count": 37,
+          "created_at": "2022-11-28 15:12:15.160690",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Next",
+          "updated_at": "2026-03-06 03:34:14.131254",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "52b42a1598f449c2a59ade7f5080232a"
+        },
+        {
+          "color": "808080",
+          "count": 2,
+          "created_at": "2023-02-24 14:04:59.388911",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "NoCut",
+          "updated_at": "2025-02-28 11:45:35.725011",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "314fd23eae9a4ed8b0d7b72851b623d1"
+        },
+        {
+          "color": "FF00FF",
+          "count": 12,
+          "created_at": "2023-03-07 13:24:02.632277",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Pinch",
+          "updated_at": "2025-12-22 04:04:47.012075",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "822aae30b6954b488b2665f97dfd7498"
+        },
+        {
+          "color": "FF0000",
+          "count": 16,
+          "created_at": "2025-05-12 02:38:49.297942",
+          "description": "",
+          "is_listed": true,
+          "is_public": true,
+          "name": "Project",
+          "updated_at": "2026-03-03 02:47:57.392772",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "6ad62b627b5b4961a3f221ddae37e065"
+        },
+        {
+          "color": "FF8000",
+          "count": 1,
+          "created_at": "2025-10-21 03:16:45.671390",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Slopper",
+          "updated_at": "2025-10-21 03:17:12.424582",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "ad29ed543fd745b0a8fbe07d425e97ac"
+        },
+        {
+          "color": "FF0000",
+          "count": 122,
+          "created_at": "2022-01-28 00:50:07.049695",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "TODO",
+          "updated_at": "2026-01-09 13:37:49.223218",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "e8a5d0c821be49eead33f80d02082a5b"
+        },
+        {
+          "color": "FF0000",
+          "count": 20,
+          "created_at": "2024-03-22 13:31:41.862761",
+          "description": "",
+          "is_listed": true,
+          "is_public": false,
+          "name": "Warm",
+          "updated_at": "2026-01-09 01:48:06.381928",
+          "user": {
+            "avatar_image": null,
+            "created_at": "2022-01-10 15:11:45.354338",
+            "id": 116255,
+            "is_verified": false,
+            "username": "RegisXu"
+          },
+          "user_id": 116255,
+          "uuid": "4977e76977944b56af845c7c82f15ac2"
+        }
+      ],
+      "created_at": "2022-01-10 15:11:45.354338",
+      "email_address": "xu.regis@gmail.com",
+      "id": 116255,
+      "instagram_username": null,
+      "is_public": true,
+      "is_verified": false,
+      "logbook": {
+        "count": 449
+      },
+      "name": "RegisXu",
+      "notifications": [],
+      "social": {
+        "followees_accepted": 4,
+        "followers_accepted": 0,
+        "followers_pending": 0
+      },
+      "updated_at": "2026-03-06 06:44:38.590737",
+      "username": "RegisXu"
+    }
+  ]
+}

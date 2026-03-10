@@ -1,0 +1,54 @@
+{
+  "notifications": [
+    {
+      "_type": "ascent",
+      "uuid": "a753706c54914a67a189c2eefecfc0d3",
+      "angle": 40,
+      "attempt_id": 0,
+      "bid_count": 1,
+      "quality": 3,
+      "difficulty": 17,
+      "difficulty_name": "6a+/V3",
+      "is_mirror": false,
+      "comment": "",
+      "created_at": "2025-02-24 01:59:10",
+      "climb": {
+        "uuid": "82D6CDF10EAC4E9E863F211EDFC3AAEB",
+        "name": "Lost in Ieri",
+        "type": "boulder"
+      },
+      "user": {
+        "id": 116255,
+        "username": "RegisXu",
+        "name": "RegisXu",
+        "avatar_image": null,
+        "is_verified": false
+      }
+    },
+    {
+      "_type": "ascent",
+      "uuid": "e260d2d14a984305a77d0c04406ceabe",
+      "angle": 40,
+      "attempt_id": 0,
+      "bid_count": 1,
+      "quality": 3,
+      "difficulty": 17,
+      "difficulty_name": "6a+/V3",
+      "is_mirror": false,
+      "comment": "",
+      "created_at": "2025-02-17 04:27:05",
+      "climb": {
+        "uuid": "82D6CDF10EAC4E9E863F211EDFC3AAEB",
+        "name": "Lost in Ieri",
+        "type": "boulder"
+      },
+      "user": {
+        "id": 116255,
+        "username": "RegisXu",
+        "name": "RegisXu",
+        "avatar_image": null,
+        "is_verified": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+#
+GET https://kilterboardapp.com/users/116255
+Accept: application/json
+Cookie: token=828a4555308ff4f6ea509502db15b0fc019e52a1
+
+
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=828a4555308ff4f6ea509502db15b0fc019e52a1
+
+products=2024-06-22+23%3A41%3A31.475997&product_sizes=2024-06-22+23%3A41%3A31.475997&holes=2024-06-22+23%3A41%3A31.475997&leds=2024-06-22+23%3A41%3A31.475997&products_angles=2024-06-22+23%3A41%3A31.475997&layouts=2024-06-22+23%3A41%3A31.475997&product_sizes_layouts_sets=2024-06-22+23%3A41%3A31.475997&placements=2024-06-22+23%3A41%3A31.475997&sets=2024-06-22+23%3A41%3A31.475997&placement_roles=2024-06-22+23%3A41%3A31.475997&climbs=2026-03-06+07%3A55%3A28.842226&climb_stats=2026-03-06+07%3A57%3A58.886161&beta_links=2026-02-24+20%3A48%3A45.736046&attempts=2024-06-22+23%3A41%3A31.475997&kits=2025-12-25+16%3A24%3A58.083835&users=2026-03-06+06%3A44%3A38.590737&walls=2025-12-12+11%3A31%3A49.624837&draft_climbs=1970-01-01+00%3A00%3A00.000000&ascents=2026-03-06+01%3A49%3A36.841603&bids=2026-03-06+03%3A29%3A28.219378&tags=2022-01-27+12%3A26%3A45.343279&circuits=2026-03-06+03%3A34%3A14.139254
+
+
+
+products=2024-06-22 23:41:31.475997&product_sizes=2024-06-22 23:41:31.475997&holes=2024-06-22 23:41:31.475997&leds=2024-06-22 23:41:31.475997&products_angles=2024-06-22 23:41:31.475997&layouts=2024-06-22 23:41:31.475997&product_sizes_layouts_sets=2024-06-22 23:41:31.475997&placements=2024-06-22 23:41:31.475997&sets=2024-06-22 23:41:31.475997&placement_roles=2024-06-22 23:41:31.475997&climbs=2026-03-06 07:55:28.842226&climb_stats=2026-03-06 07:57:58.886161&beta
+
+
+#
+GET https://kilterboardapp.com/climbs/22E8FFFCE67A40EEBF8A7AF5645A7F48/info?angle=40&_version=2
+Accept: application/json
+Cookie: token=a96778f97cb3ece15fd3c718c3fa5350666b243d; appcheck=
+
+
+#
+GET https://kilterboardapp.com/climbs/22E8FFFCE67A40EEBF8A7AF5645A7F48/notifications?climbs=1&ascents=1
+Accept: application/json
+Cookie: token=dba84a7c4be8cd95c79c15429e6d8a84e4cc9b03; appcheck=
+
+#
+GET https://kilterboardapp.com/climbs/22E8FFFCE67A40EEBF8A7AF5645A7F48/logbook?climbs=1&ascents=1&bids=1
+Accept: application/json
+Cookie: token=828a4555308ff4f6ea509502db15b0fc019e52a1; appcheck=
+
+#
+GET https://kilterboardapp.com/climbs/82D6CDF10EAC4E9E863F211EDFC3AAEB/logbook?climbs=1&ascents=1&bids=1
+Accept: application/json
+Cookie: token=828a4555308ff4f6ea509502db15b0fc019e52a1; appcheck=
+
+#
+POST https://kilterboardapp.com/sessions
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+username=regisxu&password=passw0rd&tou=accepted&pp=accepted&ua=app
+
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=968f9d16ce28e9eec0025e778f320e2e3f21661c; appcheck=
+bids=2026-03-06+03%3A29%3A28.219378
+
+#
+products=2024-06-22+23%3A41%3A31.475997&product_sizes=2024-06-22+23%3A41%3A31.475997&holes=2024-06-22+23%3A41%3A31.475997&leds=2024-06-22+23%3A41%3A31.475997&products_angles=2024-06-22+23%3A41%3A31.475997&layouts=2024-06-22+23%3A41%3A31.475997&product_sizes_layouts_sets=2024-06-22+23%3A41%3A31.475997&placements=2024-06-22+23%3A41%3A31.475997&sets=2024-06-22+23%3A41%3A31.475997&placement_roles=2024-06-22+23%3A41%3A31.475997&climbs=2026-03-06+08%3A14%3A40.918589&climb_stats=2026-03-06+08%3A23%3A19.330415&beta_links=2026-02-24+20%3A48%3A45.736046&attempts=2024-06-22+23%3A41%3A31.475997&kits=2025-12-25+16%3A24%3A58.083835&users=2026-03-06+06%3A44%3A38.590737&walls=2025-12-12+11%3A31%3A49.624837&draft_climbs=1970-01-01+00%3A00%3A00.000000&ascents=2026-03-06+01%3A49%3A36.841603&bids=2026-03-06+03%3A29%3A28.219378&tags=2022-01-27+12%3A26%3A45.343279&circuits=2026-03-06+03%3A34%3A14.139254
+
+#
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=a96778f97cb3ece15fd3c718c3fa5350666b243d
+circuits=2025-03-06+03%3A34%3A14.139254
+
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=a96778f97cb3ece15fd3c718c3fa5350666b243d
+climb_stats=2026-02-06+03%3A34%3A14.139254
+
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=a96778f97cb3ece15fd3c718c3fa5350666b243d
+ascents=2026-02-26+03%3A34%3A14.139254
+
+#
+POST https://kilterboardapp.com/sync
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Cookie: token=a96778f97cb3ece15fd3c718c3fa5350666b243d
+bids=2026-02-26+03%3A34%3A14.139254

@@ -1,0 +1,393 @@
+{
+  "_complete": true,
+  "climb_stats": [
+    {
+      "angle": 40,
+      "ascensionist_count": 88,
+      "climb_uuid": "bf1d4cb441b84c698212bc068964c98f",
+      "created_at": "2023-06-10 08:35:37.523847",
+      "difficulty_average": 21.2841,
+      "fa_at": "2023-06-10 08:35:38",
+      "fa_uid": 129199,
+      "fa_username": "gunz914",
+      "quality_average": 2.78409,
+      "updated_at": "2026-03-06 08:23:41.530327"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 1847,
+      "climb_uuid": "7A649FBB5B9A456A9070038E9FE7FD64",
+      "created_at": "2019-03-19 19:11:46.465431",
+      "difficulty_average": 21.9545,
+      "fa_at": "2019-03-19 19:11:46",
+      "fa_uid": 2998,
+      "fa_username": "fabienP",
+      "quality_average": 2.97185,
+      "updated_at": "2026-03-06 08:23:55.007350"
+    },
+    {
+      "angle": 45,
+      "ascensionist_count": 11505,
+      "climb_uuid": "5cea1413a9b44143ac33591c02a7da23",
+      "created_at": "2019-01-06 17:17:01.838402",
+      "difficulty_average": 15.0328,
+      "fa_at": "2019-01-06 17:17:02",
+      "fa_uid": 2348,
+      "fa_username": "AnthonyL",
+      "quality_average": 2.94385,
+      "updated_at": "2026-03-06 08:24:04.187967"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 627,
+      "climb_uuid": "7402B81D35954598B193AAC6EAB85791",
+      "created_at": "2024-09-22 14:59:13.162402",
+      "difficulty_average": 27.8278,
+      "fa_at": "2024-09-22 14:59:49",
+      "fa_uid": 160710,
+      "fa_username": "Michal.Zuska",
+      "quality_average": 2.96651,
+      "updated_at": "2026-03-06 08:24:20.448222"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 17836,
+      "benchmark_difficulty": 24,
+      "climb_uuid": "ee18f34a24ac43e5a114fc20bd2f61e7",
+      "created_at": "2020-04-25 14:47:01.911242",
+      "difficulty_average": 23.9448,
+      "fa_at": "2020-04-25 14:47:02",
+      "fa_uid": 12783,
+      "fa_username": "Arne",
+      "quality_average": 2.98105,
+      "updated_at": "2026-03-06 08:24:32.739600"
+    },
+    {
+      "angle": 30,
+      "ascensionist_count": 70,
+      "climb_uuid": "ccda09eab928449091e315d78f518962",
+      "created_at": "2023-04-26 17:05:32.135671",
+      "difficulty_average": 21.9714,
+      "fa_at": "2023-04-26 17:05:32",
+      "fa_uid": 170435,
+      "fa_username": "Patriciavd",
+      "quality_average": 2.82857,
+      "updated_at": "2026-03-06 08:24:32.767120"
+    },
+    {
+      "angle": 25,
+      "ascensionist_count": 2588,
+      "climb_uuid": "5DCC90B165EB420F99FC8265613E8A42",
+      "created_at": "2019-05-18 17:46:42.038331",
+      "difficulty_average": 12.0035,
+      "fa_at": "2019-05-18 17:46:42",
+      "fa_uid": 5377,
+      "fa_username": "rekone88",
+      "quality_average": 2.9544,
+      "updated_at": "2026-03-06 08:24:34.637341"
+    },
+    {
+      "angle": 50,
+      "ascensionist_count": 244,
+      "climb_uuid": "73419E10D28148D890C0B0DCD162CE4F",
+      "created_at": "2024-01-12 11:02:15.542866",
+      "difficulty_average": 10.0738,
+      "fa_at": "2024-01-12 11:02:16",
+      "fa_uid": 384874,
+      "fa_username": "Jikai",
+      "quality_average": 2.89344,
+      "updated_at": "2026-03-06 08:24:35.992724"
+    },
+    {
+      "angle": 45,
+      "ascensionist_count": 831,
+      "climb_uuid": "29272012698144DC903F3555E7155BCD",
+      "created_at": "2019-08-09 02:29:15.563129",
+      "difficulty_average": 15.9603,
+      "fa_at": "2019-08-09 02:29:16",
+      "fa_uid": 7696,
+      "fa_username": "jakedotclimbs",
+      "quality_average": 2.94224,
+      "updated_at": "2026-03-06 08:24:41.434432"
+    },
+    {
+      "angle": 35,
+      "ascensionist_count": 2842,
+      "climb_uuid": "9D8683D7FC56416CA8C2B82E2D0B1CD6",
+      "created_at": "2019-12-28 22:31:58.348005",
+      "difficulty_average": 16.0155,
+      "fa_at": "2019-12-28 22:31:58",
+      "fa_uid": 8084,
+      "fa_username": "brittmoore86",
+      "quality_average": 2.97291,
+      "updated_at": "2026-03-06 08:24:43.426153"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 35371,
+      "climb_uuid": "b687144e58ad43fc918031dd28643737",
+      "created_at": "2019-03-04 04:12:55.117904",
+      "difficulty_average": 13.0323,
+      "fa_at": "2019-03-04 04:12:55",
+      "fa_uid": 3189,
+      "fa_username": "Manny",
+      "quality_average": 2.95901,
+      "updated_at": "2026-03-06 08:24:46.043228"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 1985,
+      "climb_uuid": "506A15ED94534834A4295EF1E7EBB789",
+      "created_at": "2023-01-06 00:43:43.402224",
+      "difficulty_average": 23.8912,
+      "fa_at": "2023-01-06 00:43:43",
+      "fa_uid": 44981,
+      "fa_username": "kamboi",
+      "quality_average": 2.98338,
+      "updated_at": "2026-03-06 08:25:23.791100"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 642,
+      "climb_uuid": "124DDC12D35943C4A1EF9D5EFC5A24FC",
+      "created_at": "2020-09-24 04:52:40.874454",
+      "difficulty_average": 16.014,
+      "fa_at": "2020-09-24 04:52:41",
+      "fa_uid": 26182,
+      "fa_username": "ninjanatho",
+      "quality_average": 2.95794,
+      "updated_at": "2026-03-06 08:25:31.584995"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 79825,
+      "climb_uuid": "AC9FCF7F01FC44BD835CFC41CB2224DA",
+      "created_at": "2019-02-18 22:46:20.190260",
+      "difficulty_average": 15.9964,
+      "fa_at": "2019-02-18 22:46:20",
+      "fa_uid": 3174,
+      "fa_username": "JustinKo",
+      "quality_average": 2.95862,
+      "updated_at": "2026-03-06 08:25:35.218674"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 81,
+      "climb_uuid": "6BA1C7267BC246DC8C4FBCDE7B641C3E",
+      "created_at": "2024-04-06 13:27:25.626701",
+      "difficulty_average": 20.5926,
+      "fa_at": "2024-04-06 13:27:26",
+      "fa_uid": 459356,
+      "fa_username": "carlo.dgh",
+      "quality_average": 2.66667,
+      "updated_at": "2026-03-06 08:25:53.326434"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 1736,
+      "climb_uuid": "69D8F52946BD4328ACEEBD5D1244888C",
+      "created_at": "2023-10-27 14:55:35.719090",
+      "difficulty_average": 22.9188,
+      "fa_at": "2023-10-27 14:55:36",
+      "fa_uid": 72314,
+      "fa_username": "lfascensao",
+      "quality_average": 2.97984,
+      "updated_at": "2026-03-06 08:25:59.574234"
+    },
+    {
+      "angle": 45,
+      "ascensionist_count": 195,
+      "climb_uuid": "f7d6735cd3ac44dc984f10573cfb7796",
+      "created_at": "2019-12-01 23:30:24.084413",
+      "difficulty_average": 14.8308,
+      "fa_at": "2019-12-01 23:30:24",
+      "fa_uid": 14138,
+      "fa_username": "smurf",
+      "quality_average": 2.31282,
+      "updated_at": "2026-03-06 08:26:10.762486"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 2308,
+      "climb_uuid": "1764865D21E54CE29DF0352BE54588EE",
+      "created_at": "2019-05-29 03:23:50.690748",
+      "difficulty_average": 16.9103,
+      "fa_at": "2019-05-29 03:23:51",
+      "fa_uid": 4807,
+      "fa_username": "razzoukzzz123",
+      "quality_average": 2.97747,
+      "updated_at": "2026-03-06 08:26:23.952490"
+    },
+    {
+      "angle": 45,
+      "ascensionist_count": 769,
+      "climb_uuid": "edbf0c7b02e848b6b537f2c70bc3c95e",
+      "created_at": "2019-10-21 08:01:40.392887",
+      "difficulty_average": 16.0208,
+      "fa_at": "2019-10-21 08:01:40",
+      "fa_uid": 7372,
+      "fa_username": "ksmd",
+      "quality_average": 2.93108,
+      "updated_at": "2026-03-06 08:26:27.922631"
+    },
+    {
+      "angle": 50,
+      "ascensionist_count": 26,
+      "climb_uuid": "58018D9147344268BCE5A720A289C3D8",
+      "created_at": "2021-10-17 04:48:20.995408",
+      "difficulty_average": 18.5769,
+      "fa_at": "2021-10-17 04:48:21",
+      "fa_uid": 26283,
+      "fa_username": "endz",
+      "quality_average": 2.80769,
+      "updated_at": "2026-03-06 08:26:55.562752"
+    },
+    {
+      "angle": 35,
+      "ascensionist_count": 12021,
+      "climb_uuid": "EFF9A8EBC95541B397B6931DAB36AE2B",
+      "created_at": "2019-02-23 02:16:51.433331",
+      "difficulty_average": 15.0136,
+      "fa_at": "2019-02-23 02:16:51",
+      "fa_uid": 1272,
+      "fa_username": "Johhnythin",
+      "quality_average": 2.92771,
+      "updated_at": "2026-03-06 08:27:17.052854"
+    },
+    {
+      "angle": 30,
+      "ascensionist_count": 10093,
+      "climb_uuid": "4DE96F7EDA7D4BE5B51E2CEBC4847D9E",
+      "created_at": "2019-04-30 00:22:20.670751",
+      "difficulty_average": 12.0304,
+      "fa_at": "2019-04-30 00:22:21",
+      "fa_uid": 5058,
+      "fa_username": "bkbskilterboard",
+      "quality_average": 2.94531,
+      "updated_at": "2026-03-06 08:27:22.196221"
+    },
+    {
+      "angle": 20,
+      "ascensionist_count": 1631,
+      "climb_uuid": "5237A133F26C4C058B56D4133CA33A79",
+      "created_at": "2019-08-06 18:04:10.938398",
+      "difficulty_average": 13.046,
+      "fa_at": "2019-08-06 18:04:11",
+      "fa_uid": 6989,
+      "fa_username": "x8joanna8x",
+      "quality_average": 2.96689,
+      "updated_at": "2026-03-06 08:27:24.215953"
+    },
+    {
+      "angle": 50,
+      "ascensionist_count": 7328,
+      "benchmark_difficulty": 20,
+      "climb_uuid": "C03F828F4B22491C93175CA01EE9C91C",
+      "created_at": "2018-12-06 21:48:25.948285",
+      "difficulty_average": 19.9395,
+      "fa_at": "2018-12-06 21:48:26",
+      "fa_uid": 1053,
+      "fa_username": "Cuckovich",
+      "quality_average": 2.98376,
+      "updated_at": "2026-03-06 08:27:33.604667"
+    },
+    {
+      "angle": 40,
+      "ascensionist_count": 14821,
+      "climb_uuid": "88B00CE652CC4C07A89CF20710163454",
+      "created_at": "2019-04-06 23:10:53.887535",
+      "difficulty_average": 12.9752,
+      "fa_at": "2019-04-06 23:10:54",
+      "fa_uid": 3932,
+      "fa_username": "Aila",
+      "quality_average": 2.94629,
+      "updated_at": "2026-03-06 08:27:38.658656"
+    },
+    {
+      "angle": 35,
+      "ascensionist_count": 2726,
+      "climb_uuid": "596365DBF94143E4B341F68AD161AE0F",
+      "created_at": "2020-01-28 22:26:18.303116",
+      "difficulty_average": 16.0062,
+      "fa_at": "2020-01-28 22:26:18",
+      "fa_uid": 14128,
+      "fa_username": "SouthernMeerkat",
+      "quality_average": 2.97909,
+      "updated_at": "2026-03-06 08:27:42.328905"
+    },
+    {
+      "angle": 45,
+      "ascensionist_count": 33102,
+      "benchmark_difficulty": 16,
+      "climb_uuid": "D0E5387D5B974D38B4E93FC4DFD61EF6",
+      "created_at": "2019-06-24 19:09:51.255768",
+      "difficulty_average": 15.8715,
+      "fa_at": "2019-06-24 19:09:51",
+      "fa_uid": 6282,
+      "fa_username": "BryanLRoberts",
+      "quality_average": 2.95632,
+      "updated_at": "2026-03-06 08:27:48.411105"
+    },
+    {
+      "angle": 25,
+      "ascensionist_count": 2715,
+      "climb_uuid": "88BEFE0727C84F808F6281C18FA11282",
+      "created_at": "2019-08-09 03:59:06.318460",
+      "difficulty_average": 12.9179,
+      "fa_at": "2019-08-09 03:59:06",
+      "fa_uid": 2100,
+      "fa_username": "ednakayama",
+      "quality_average": 2.94401,
+      "updated_at": "2026-03-06 08:27:49.853036"
+    },
+    {
+      "angle": 50,
+      "ascensionist_count": 2137,
+      "climb_uuid": "094666f3a3344d5e9407b82f65b945eb",
+      "created_at": "2020-04-19 05:00:12.302576",
+      "difficulty_average": 14.0066,
+      "fa_at": "2020-04-19 05:00:12",
+      "fa_uid": 5333,
+      "fa_username": "vukyle",
+      "quality_average": 2.98128,
+      "updated_at": "2026-03-06 08:27:51.080352"
+    }
+  ],
+  "shared_syncs": [
+    {
+      "last_synchronized_at": "2026-03-06 08:27:51.080352",
+      "table_name": "climb_stats"
+    }
+  ],
+  "user_syncs": [
+    {
+      "last_synchronized_at": "2026-03-06 06:44:38.590737",
+      "table_name": "users",
+      "user_id": 116255
+    }
+  ],
+  "users": [
+    {
+      "avatar_image": null,
+      "banner_image": null,
+      "city": null,
+      "country": null,
+      "created_at": "2022-01-10 15:11:45.354338",
+      "email_address": "xu.regis@gmail.com",
+      "height": null,
+      "id": 116255,
+      "instagram_username": null,
+      "is_listed": true,
+      "is_public": true,
+      "is_verified": false,
+      "name": "RegisXu",
+      "permissions": [
+        "set_boulder"
+      ],
+      "updated_at": "2026-03-06 06:44:38.590737",
+      "username": "RegisXu",
+      "weight": null,
+      "wingspan": null
+    }
+  ]
+}
