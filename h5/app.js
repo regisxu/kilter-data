@@ -138,7 +138,8 @@ async function fetchData() {
     filteredRecords = [...allRecords];
     displayedCount = 0;
     
-    showLoadingStatus(`加载完成: ${allRecords.length} 条记录`);
+    // 显示加载完成统计
+    showLoadingStats(allRecords.length);
 }
 
 // 解析查询结果
@@ -168,6 +169,19 @@ function showMainScreen() {
 // 显示加载状态
 function showLoadingStatus(message) {
     document.getElementById('loading-status').textContent = message;
+}
+
+// 显示加载完成统计
+function showLoadingStats(total) {
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('loading-stats').style.display = 'flex';
+    document.querySelector('.file-input-wrapper').style.display = 'none';
+    document.getElementById('loading-status').textContent = '加载完成！';
+    
+    // 3秒后自动进入主界面
+    setTimeout(() => {
+        showMainScreen();
+    }, 1500);
 }
 
 let lastRenderedDate = null;  // 用于按天分块

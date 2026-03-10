@@ -13,13 +13,18 @@
         <div id="loading-screen" class="screen active">
             <div class="loading-content">
                 <h1>🧗 Kilterboard Logbook</h1>
-                <p>加载 SQLite 数据库...</p>
                 <div class="file-input-wrapper">
                     <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" />
                     <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
                         📁 选择数据库文件
                     </button>
-                    <p class="hint">选择 kilter.db 文件开始</p>
+                </div>
+                <div id="loading-stats" class="loading-stats" style="display: none;">
+                    <div class="stat-item">
+                        <span class="stat-number" id="stat-total">0</span>
+                        <span class="stat-label">条记录</span>
+                    </div>
+                    <button class="btn-reload" onclick="location.reload()">🔄 重新加载</button>
                 </div>
                 <div id="loading-status"></div>
             </div>
