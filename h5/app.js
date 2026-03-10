@@ -429,19 +429,37 @@ function formatDateTime(dateStr) {
     });
 }
 
-// 根据 difficulty 数值获取 V-grade（基于 Gumby Soup 数据分析）
-// 数据分析：15°=V3(~17), 20-30°=V4(~18), 35-55°=V5(~20-21), 50°=V6(~22), 60°=V7(~23), 70°=V8(~24)
+// 根据 difficulty 数值获取 V-grade（Fontainebleau 等级对照表）
+// difficulty: 10=4a/V0, 16=6a/V3, 20=6c/V5, 24=7b/V8, 32=8c/V15
 function getDifficultyLabel(difficulty) {
     if (!difficulty || difficulty === '-') return '';
-    const d = parseFloat(difficulty);
-    if (d < 16) return 'V0-V2';
-    if (d < 17.5) return 'V3';
-    if (d < 19.5) return 'V4';
-    if (d < 21.5) return 'V5';
-    if (d < 22.5) return 'V6';
-    if (d < 23.5) return 'V7';
-    if (d < 25) return 'V8';
-    return 'V9+';
+    const d = parseInt(difficulty);
+    
+    // Fontainebleau / V-grade / difficulty 对照
+    if (d <= 10) return '4a/V0';
+    if (d <= 11) return '4b/V0';
+    if (d <= 12) return '4c/V0';
+    if (d <= 13) return '5a/V1';
+    if (d <= 14) return '5b/V1';
+    if (d <= 15) return '5c/V2';
+    if (d <= 16) return '6a/V3';
+    if (d <= 17) return '6a+/V3';
+    if (d <= 18) return '6b/V4';
+    if (d <= 19) return '6b+/V4';
+    if (d <= 20) return '6c/V5';
+    if (d <= 21) return '6c+/V5';
+    if (d <= 22) return '7a/V6';
+    if (d <= 23) return '7a+/V7';
+    if (d <= 24) return '7b/V8';
+    if (d <= 25) return '7b+/V8';
+    if (d <= 26) return '7c/V9';
+    if (d <= 27) return '7c+/V10';
+    if (d <= 28) return '8a/V11';
+    if (d <= 29) return '8a+/V12';
+    if (d <= 30) return '8b/V13';
+    if (d <= 31) return '8b+/V14';
+    if (d <= 32) return '8c/V15';
+    return '8c+/V16+';
 }
 
 function escapeHtml(text) {

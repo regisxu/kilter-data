@@ -119,17 +119,21 @@ GROUP BY b.climb_uuid
 ORDER BY total_attempts DESC
 LIMIT 10;
 
--- 查询平均难度分布（基于数据分析的 V-grade 映射）
+-- 查询平均难度分布（Fontainebleau/V-grade 等级）
 SELECT 
     CASE 
-        WHEN difficulty < 16 THEN 'V0-V2'
-        WHEN difficulty < 17.5 THEN 'V3'
-        WHEN difficulty < 19.5 THEN 'V4'
-        WHEN difficulty < 21.5 THEN 'V5'
-        WHEN difficulty < 22.5 THEN 'V6'
-        WHEN difficulty < 23.5 THEN 'V7'
-        WHEN difficulty < 25 THEN 'V8'
-        ELSE 'V9+'
+        WHEN difficulty <= 12 THEN '4a-c/V0'
+        WHEN difficulty <= 14 THEN '5a-b/V1'
+        WHEN difficulty <= 15 THEN '5c/V2'
+        WHEN difficulty <= 17 THEN '6a/V3'
+        WHEN difficulty <= 19 THEN '6b/V4'
+        WHEN difficulty <= 21 THEN '6c/V5'
+        WHEN difficulty <= 23 THEN '7a/V6-V7'
+        WHEN difficulty <= 25 THEN '7b-c/V8-V9'
+        WHEN difficulty <= 27 THEN '7c+/V10'
+        WHEN difficulty <= 29 THEN '8a/V11-V12'
+        WHEN difficulty <= 31 THEN '8b/V13-V14'
+        ELSE '8c+/V15+'
     END as grade_range,
     COUNT(*) as count
 FROM ascents
@@ -159,34 +163,41 @@ ORDER BY year DESC;
 | `/climbs/{uuid}/info` | GET | 获取线路详情 |
 | `/climbs/{uuid}/logbook` | GET | 获取用户在该线路的记录 |
 
-## Difficulty 数值与 V-grade 对照表
+## Difficulty 数值与等级对照表
 
-基于 **Gumby Soup** 线路数据分析（对比不同角度的 `difficulty_average` 与 App 显示的 V-grade）：
+Kilterboard 使用 **Fontainebleau** 等级系统，同时显示对应的 **V-grade**：
 
-| difficulty 范围 | V-grade | 示例角度 |
-|----------------|---------|----------|
-| < 16 | V0-V2 | 10° (~16.7) |
-| 16 - 17.5 | V3 | 15° (17.0) |
-| 17.5 - 19.5 | V4 | 20-30° (~18.2) |
-| 19.5 - 21.5 | V5 | 35-55° (~20-21) |
-| 21.5 - 22.5 | V6 | 50° (22.1) |
-| 22.5 - 23.5 | V7 | 60° (23.0) |
-| 23.5 - 25 | V8 | 70° (~24) |
-| >= 25 | V9+ | - |
+| difficulty | Fontainebleau | V-grade | 描述 |
+|-----------|---------------|---------|------|
+| 10 | 4a | V0 | 入门 |
+| 11 | 4b | V0 | 入门 |
+| 12 | 4c | V0 | 入门 |
+| 13 | 5a | V1 | 初级 |
+| 14 | 5b | V1 | 初级 |
+| 15 | 5c | V2 | 初级 |
+| 16 | 6a | V3 | 中级 |
+| 17 | 6a+ | V3 | 中级 |
+| 18 | 6b | V4 | 中级 |
+| 19 | 6b+ | V4 | 中级 |
+| 20 | 6c | V5 | 中高级 |
+| 21 | 6c+ | V5 | 中高级 |
+| 22 | 7a | V6 | 高级 |
+| 23 | 7a+ | V7 | 高级 |
+| 24 | 7b | V8 | 高级 |
+| 25 | 7b+ | V8 | 高级 |
+| 26 | 7c | V9 | 专家 |
+| 27 | 7c+ | V10 | 专家 |
+| 28 | 8a | V11 | 专家 |
+| 29 | 8a+ | V12 | 专家 |
+| 30 | 8b | V13 | 精英 |
+| 31 | 8b+ | V14 | 精英 |
+| 32 | 8c | V15 | 精英 |
+| 33+ | 8c+ | V16+ | 世界级 |
 
-**参考数据**（Gumby Soup 线路统计）：
-```
-角度 | difficulty | V-grade
------|-----------|---------
-10°  | 16.67     | V2
-15°  | 17.00     | V3
-20°  | 18.17     | V4
-30°  | 18.33     | V4
-40°  | 20.89     | V5
-50°  | 22.08     | V6
-60°  | 23.00     | V7
-70°  | ~24       | V8
-```
+**示例**：
+- difficulty 16 = 6a/V3
+- difficulty 24 = 7b/V8
+- difficulty 32 = 8c/V15 (如 "Big move v15" 线路)
 
 ## 数据字段说明
 
