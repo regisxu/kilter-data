@@ -431,9 +431,12 @@ function formatDateTime(dateStr) {
 
 // 根据 difficulty 数值获取 V-grade（Fontainebleau 等级对照表）
 // difficulty: 10=4a/V0, 16=6a/V3, 20=6c/V5, 24=7b/V8, 32=8c/V15
+// 输入值会先四舍五入到整数
 function getDifficultyLabel(difficulty) {
     if (!difficulty || difficulty === '-') return '';
-    const d = parseInt(difficulty);
+    
+    // 先四舍五入到整数
+    const d = Math.round(parseFloat(difficulty));
     
     // Fontainebleau / V-grade / difficulty 对照
     if (d <= 10) return '4a/V0';
