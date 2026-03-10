@@ -105,10 +105,15 @@
 
                 <div class="filter-group">
                     <label>难度范围</label>
-                    <div class="range-inputs">
-                        <input type="number" id="diff-min" placeholder="0" min="0" max="30" onchange="applyFilters()">
-                        <span>~</span>
-                        <input type="number" id="diff-max" placeholder="30" min="0" max="30" onchange="applyFilters()">
+                    <div class="diff-range-slider">
+                        <div class="diff-range-labels">
+                            <span id="diff-min-label">4a/V0</span>
+                            <span id="diff-max-label">8c+/V16+</span>
+                        </div>
+                        <div class="range-inputs">
+                            <input type="range" id="diff-min" min="10" max="33" value="10" oninput="onDiffChange()">
+                            <input type="range" id="diff-max" min="10" max="33" value="33" oninput="onDiffChange()">
+                        </div>
                     </div>
                 </div>
 

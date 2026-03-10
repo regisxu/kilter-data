@@ -327,6 +327,23 @@ function hideFilterPanel() {
     document.getElementById('filter-panel').classList.remove('active');
 }
 
+// 难度范围变化处理
+function onDiffChange() {
+    const min = parseInt(document.getElementById('diff-min').value);
+    const max = parseInt(document.getElementById('diff-max').value);
+    
+    // 确保 min <= max
+    if (min > max) {
+        document.getElementById('diff-min').value = max;
+    }
+    
+    // 更新标签显示
+    document.getElementById('diff-min-label').textContent = getDifficultyLabel(min);
+    document.getElementById('diff-max-label').textContent = getDifficultyLabel(max);
+    
+    applyFilters();
+}
+
 // 时间筛选变化处理
 function onTimeFilterChange() {
     const timeFilter = document.getElementById('filter-time').value;
@@ -465,9 +482,11 @@ function updateFilterBar() {
     
     // 难度
     let diffText = '全部';
-    if (diffMin || diffMax) {
-        const minLabel = diffMin ? getDifficultyLabel(parseInt(diffMin)) : '0';
-        const maxLabel = diffMax ? getDifficultyLabel(parseInt(diffMax)) : 'V16+';
+    const minVal = parseInt(diffMin) || 10;
+    const maxVal = parseInt(diffMax) || 33;
+    if (minVal > 10 || maxVal < 33) {
+        const minLabel = getDifficultyLabel(minVal);
+        const maxLabel = getDifficultyLabel(maxVal);
         diffText = minLabel.split('/')[0] + '-' + maxLabel.split('/')[0];
     }
     document.getElementById('filter-bar-diff').textContent = diffText;
@@ -478,14 +497,18 @@ function resetFilters() {
     document.getElementById('filter-time').value = 'all';
     document.getElementById('filter-ascent').checked = true;
     document.getElementById('filter-bid').checked = true;
-    document.getElementById('diff-min').value = '';
-    document.getElementById('diff-max').value = '';
+    document.getElementById('diff-min').value = '10';
+    document.getElementById('diff-max').value = '33';
     document.getElementById('filter-search').value = '';
+    document.getElementById('custom-date-range').style.display = 'none';
+    document.getElementById('date-start').value = '';
+    document.getElementById('date-end').value = '';
     
     document.querySelectorAll('.angles input[type="checkbox"]').forEach(cb => {
         cb.checked = true;
     });
     
+    onDiffChange();
     applyFilters();
 }
 
