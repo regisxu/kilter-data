@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kilterboard Logbook</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 加载界面 -->
+        <div id="loading-screen" class="screen active">
+            <div class="loading-content">
+                <h1>🧗 Kilterboard Logbook</h1>
+                <p>加载 SQLite 数据库...</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" />
+                    <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
+                        📁 选择数据库文件
+                    </button>
+                    <p class="hint">选择 kilter.db 文件开始</p>
+                </div>
+                <div id="loading-status"></div>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div id="main-screen" class="screen">
+            <!-- 头部 -->
+            <header class="app-header">
+                <h1>🧗 Logbook</h1>
+                <div class="header-stats">
+                    <span id="total-count">0 条记录</span>
+                    <button class="btn-icon" onclick="showFilterPanel()">🔍</button>
+                    <button class="btn-icon" onclick="location.reload()">🔄</button>
+                </div>
+            </header>
+
+            <!-- 筛选面板 -->
+            <div id="filter-panel" class="filter-panel">
+                <div class="filter-group">
+                    <label>时间范围</label>
+                    <select id="filter-time" onchange="applyFilters()">
+                        <option value="all">全部时间</option>
+                        <option value="7">最近7天</option>
+                        <option value="30">最近30天</option>
+                        <option value="90">最近90天</option>
+                        <option value="365">最近一年</option>
+                        <option value="2026">2026年</option>
+                        <option value="2025">2025年</option>
+                        <option value="2024">2024年</option>
+                        <option value="2023">2023年</option>
+                        <option value="2022">2022年</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>记录类型</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="filter-ascent" checked onchange="applyFilters()"> ✅ 完攀 (Ascent)</label>
+                        <label><input type="checkbox" id="filter-bid" checked onchange="applyFilters()"> 🔄 尝试 (Bid)</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>角度</label>
+                    <div class="checkbox-group angles">
+                        <label><input type="checkbox" value="30" checked onchange="applyFilters()"> 30°</label>
+                        <label><input type="checkbox" value="40" checked onchange="applyFilters()"> 40°</label>
+                        <label><input type="checkbox" value="45" checked onchange="applyFilters()"> 45°</label>
+                        <label><input type="checkbox" value="50" checked onchange="applyFilters()"> 50°</label>
+                        <label><input type="checkbox" value="55" checked onchange="applyFilters()"> 55°</label>
+                        <label><input type="checkbox" value="60" checked onchange="applyFilters()"> 60°</label>
+                        <label><input type="checkbox" value="70" checked onchange="applyFilters()"> 70°</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>难度范围</label>
+                    <div class="range-inputs">
+                        <input type="number" id="diff-min" placeholder="0" min="0" max="30" onchange="applyFilters()">
+                        <span>~</span>
+                        <input type="number" id="diff-max" placeholder="30" min="0" max="30" onchange="applyFilters()">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>搜索线路</label>
+                    <input type="text" id="filter-search" placeholder="输入线路名称..." oninput="applyFilters()">
+                </div>
+
+                <button class="btn-secondary" onclick="resetFilters()">重置筛选</button>
+                <button class="btn-close" onclick="hideFilterPanel()">✕</button>
+            </div>
+
+            <!-- 记录列表 -->
+            <div id="record-list" class="record-list">
+                <!-- 动态生成 -->
+            </div>
+
+            <!-- 加载更多 -->
+            <div id="load-more" class="load-more" onclick="loadMore()">
+                <span>加载更多...</span>
+            </div>
+        </div>
+
+        <!-- 详情弹窗 -->
+        <div id="detail-modal" class="modal" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="closeModal()">✕</button>
+                <div id="modal-body">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
