@@ -272,50 +272,31 @@ function showDetail(record) {
     const modal = document.getElementById('detail-modal');
     const body = document.getElementById('modal-body');
     
-    const date = formatDateTime(record.climbed_at);
-    const typeIcon = record.type === 'ascent' ? '✅' : '🔄';
-    const difficulty = record.difficulty || record.stats.difficulty_average || '-';
-    const quality = record.quality || record.stats.quality_average || '-';
     const setter = record.setter_username || 'Unknown';
-    const comment = record.comment || '无评论';
+    
+    // 获取该用户在这条线路的所有攀爬记录
+    const userClimbs = getUserClimbsForRoute(record.climb_uuid, record.angle);
+    
+    // 计算完成次数
+    const ascentCount = userClimbs.filter(c => c.type === 'ascent').length;
     
     body.innerHTML = `
-        <div class="detail-header">
+        <div class="detail-header compact">
             <h2>${escapeHtml(record.climb_name || 'Unknown')}</h2>
-            <span class="detail-type">${typeIcon} ${record.type.toUpperCase()}</span>
-        </div>
-        
-        <div class="detail-section">
-            <h3>🧗 线路信息</h3>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <label>角度</label>
-                    <value>${record.angle}°</value>
-                </div>
-                <div class="detail-item">
-                    <label>定线员</label>
-                    <value>${escapeHtml(setter)}</value>
-                </div>
-                <div class="detail-item">
-                    <label>你的难度评分</label>
-                    <value>${record.difficulty || '-'} ${getDifficultyLabel(record.difficulty)}</value>
-                </div>
-                <div class="detail-item">
-                    <label>你的质量评分</label>
-                    <value>${record.quality ? '⭐'.repeat(Math.round(record.quality)) : '-'}</value>
-                </div>
+            <div class="detail-meta">
+                <span class="meta-tag">📐 ${record.angle}°</span>
+                <span class="meta-tag">👤 ${escapeHtml(setter)}</span>
             </div>
         </div>
         
-        <div class="detail-section">
-            <h3>📊 线路统计</h3>
-            <div class="detail-grid">
+        <div class="detail-section compact">
+            <div class="detail-grid compact">
                 <div class="detail-item">
-                    <label>平均难度</label>
-                    <value>${(record.stats.difficulty_average || '-').toString().substring(0, 4)}</value>
+                    <label>难度</label>
+                    <value class="grade">${getDifficultyLabel(record.stats.difficulty_average || record.difficulty)}</value>
                 </div>
                 <div class="detail-item">
-                    <label>平均质量</label>
+                    <label>质量</label>
                     <value>${record.stats.quality_average ? '⭐'.repeat(Math.round(record.stats.quality_average)) : '-'}</value>
                 </div>
                 <div class="detail-item">
@@ -323,28 +304,34 @@ function showDetail(record) {
                     <value>${record.stats.ascensionist_count || '-'}</value>
                 </div>
                 <div class="detail-item">
-                    <label>你的尝试次数</label>
-                    <value>${record.bid_count || 0}</value>
+                    <label>我的完成</label>
+                    <value>${ascentCount} 次</value>
                 </div>
             </div>
         </div>
         
         <div class="detail-section">
-            <h3>📝 攀爬记录</h3>
-            <div class="detail-log">
-                <div class="log-item">
-                    <span class="log-time">${date}</span>
-                    <span class="log-action">${record.type === 'ascent' ? '完成攀爬' : '尝试未成功'}</span>
-                </div>
-                <div class="log-comment">
-                    <label>评论:</label>
-                    <p>${escapeHtml(comment)}</p>
-                </div>
+            <h3>📝 我的攀爬记录 (${userClimbs.length} 条)</h3>
+            <div class="climb-history">
+                ${userClimbs.map(climb => `
+                    <div class="history-item ${climb.type}">
+                        <div class="history-main">
+                            <span class="history-time">${formatDateTime(climb.climbed_at)}</span>
+                            <span class="history-type">${climb.type === 'ascent' ? '✅ 完攀' : '🔄 尝试'}</span>
+                        </div>
+                        <div class="history-detail">
+                            <span>难度: ${getDifficultyLabel(climb.difficulty) || '-'}</span>
+                            <span>质量: ${climb.quality ? '⭐'.repeat(climb.quality) : '-'}</span>
+                            <span>尝试: ${climb.bid_count || 0} 次</span>
+                        </div>
+                        ${climb.comment ? `<div class="history-comment">${escapeHtml(climb.comment)}</div>` : ''}
+                    </div>
+                `).join('')}
             </div>
         </div>
         
         ${record.description ? `
-        <div class="detail-section">
+        <div class="detail-section compact">
             <h3>📖 线路说明</h3>
             <p class="description">${escapeHtml(record.description)}</p>
         </div>
@@ -352,6 +339,14 @@ function showDetail(record) {
     `;
     
     modal.classList.add('active');
+}
+
+// 获取用户在某条线路的所有攀爬记录
+function getUserClimbsForRoute(climbUuid, angle) {
+    return allRecords.filter(r => 
+        r.climb_uuid === climbUuid && 
+        r.angle === angle
+    ).sort((a, b) => new Date(b.climbed_at) - new Date(a.climbed_at));
 }
 
 // 关闭弹窗
