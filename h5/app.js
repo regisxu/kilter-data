@@ -5,7 +5,7 @@ let db = null;                    // SQL.js 数据库实例
 let allRecords = [];              // 所有记录
 let filteredRecords = [];         // 筛选后的记录
 let displayedCount = 0;           // 已显示数量
-const PAGE_SIZE = 20;             // 每页显示数量
+const PAGE_SIZE = 50;             // 每页显示数量
 
 // 初始化
 async function init() {
@@ -170,12 +170,22 @@ function showLoadingStatus(message) {
     document.getElementById('loading-status').textContent = message;
 }
 
+let lastRenderedDate = null;  // 用于按天分块
+
 // 渲染列表
 function renderList() {
     const listEl = document.getElementById('record-list');
     const recordsToShow = filteredRecords.slice(displayedCount, displayedCount + PAGE_SIZE);
     
     recordsToShow.forEach(record => {
+        // 检查是否需要插入日期分隔线
+        const recordDate = record.climbed_at.split(' ')[0];
+        if (recordDate !== lastRenderedDate) {
+            const dateDivider = createDateDivider(record.climbed_at);
+            listEl.appendChild(dateDivider);
+            lastRenderedDate = recordDate;
+        }
+        
         const card = createRecordCard(record);
         listEl.appendChild(card);
     });
@@ -193,34 +203,68 @@ function renderList() {
     }
 }
 
+// 创建日期分隔线
+function createDateDivider(dateStr) {
+    const div = document.createElement('div');
+    div.className = 'date-divider';
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    let dateText = date.toLocaleDateString('zh-CN', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        weekday: 'short'
+    });
+    
+    if (date.toDateString() === today.toDateString()) {
+        dateText = '今天';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+        dateText = '昨天';
+    }
+    
+    div.innerHTML = `<span class="date-text">${dateText}</span>`;
+    return div;
+}
+
 // 创建记录卡片
 function createRecordCard(record) {
     const div = document.createElement('div');
-    div.className = 'record-card';
+    // 根据类型设置不同的背景色
+    div.className = `record-card ${record.type}`;
     div.onclick = () => showDetail(record);
     
-    const date = formatDate(record.climbed_at);
-    const typeIcon = record.type === 'ascent' ? '✅' : '🔄';
-    const typeClass = record.type === 'ascent' ? 'ascent' : 'bid';
+    const time = formatTime(record.climbed_at);
     const difficulty = record.difficulty || record.stats.difficulty_average || '-';
     const difficultyLabel = getDifficultyLabel(difficulty);
     
     div.innerHTML = `
         <div class="card-header">
-            <span class="date">${date}</span>
-            <span class="type-badge ${typeClass}">${typeIcon} ${record.type.toUpperCase()}</span>
+            <span class="time">${time}</span>
         </div>
         <div class="card-body">
             <h3 class="climb-name">${escapeHtml(record.climb_name || 'Unknown')}</h3>
             <div class="card-meta">
                 <span class="meta-item">📐 ${record.angle}°</span>
-                <span class="meta-item">⭐ ${difficulty} ${difficultyLabel}</span>
-                <span class="meta-item">🔄 ${record.bid_count || 0} 次尝试</span>
+                <span class="meta-item grade">${difficultyLabel}</span>
+                <span class="meta-item">🔄 ${record.bid_count || 0} 次</span>
             </div>
         </div>
     `;
     
     return div;
+}
+
+// 格式化时间（精确到秒）
+function formatTime(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString('zh-CN', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    });
 }
 
 // 显示详情
@@ -423,6 +467,7 @@ function applyFilters() {
     
     // 重置列表
     displayedCount = 0;
+    lastRenderedDate = null;
     document.getElementById('record-list').innerHTML = '';
     document.getElementById('total-count').textContent = `${filteredRecords.length} 条记录`;
     renderList();
