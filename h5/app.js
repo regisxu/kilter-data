@@ -380,6 +380,58 @@ function applyFilters() {
     document.getElementById('record-list').innerHTML = '';
     document.getElementById('total-count').textContent = `${filteredRecords.length} 条记录`;
     renderList();
+    
+    // 更新 filter bar 显示
+    updateFilterBar();
+}
+
+// 更新 Filter Bar 显示
+function updateFilterBar() {
+    const timeFilter = document.getElementById('filter-time').value;
+    const showAscent = document.getElementById('filter-ascent').checked;
+    const showBid = document.getElementById('filter-bid').checked;
+    const diffMin = document.getElementById('diff-min').value;
+    const diffMax = document.getElementById('diff-max').value;
+    
+    // 时间
+    const timeText = {
+        'all': '全部',
+        '7': '7天',
+        '30': '30天',
+        '90': '90天',
+        '365': '1年',
+        '2026': '2026',
+        '2025': '2025',
+        '2024': '2024',
+        '2023': '2023',
+        '2022': '2022'
+    };
+    document.getElementById('filter-bar-time').textContent = timeText[timeFilter] || timeFilter;
+    
+    // 类型
+    let typeText = '全部';
+    if (showAscent && !showBid) typeText = '完攀';
+    else if (!showAscent && showBid) typeText = '尝试';
+    else if (!showAscent && !showBid) typeText = '无';
+    document.getElementById('filter-bar-type').textContent = typeText;
+    
+    // 角度
+    const angleCheckboxes = document.querySelectorAll('.angles input[type="checkbox"]:checked');
+    const selectedAngles = Array.from(angleCheckboxes).map(cb => cb.value);
+    let angleText = '全部';
+    if (selectedAngles.length === 1) angleText = selectedAngles[0] + '°';
+    else if (selectedAngles.length > 1 && selectedAngles.length < 15) angleText = selectedAngles.length + '个';
+    else if (selectedAngles.length === 0) angleText = '无';
+    document.getElementById('filter-bar-angle').textContent = angleText;
+    
+    // 难度
+    let diffText = '全部';
+    if (diffMin || diffMax) {
+        const minLabel = diffMin ? getDifficultyLabel(parseInt(diffMin)) : '0';
+        const maxLabel = diffMax ? getDifficultyLabel(parseInt(diffMax)) : 'V16+';
+        diffText = minLabel.split('/')[0] + '-' + maxLabel.split('/')[0];
+    }
+    document.getElementById('filter-bar-diff').textContent = diffText;
 }
 
 // 重置筛选

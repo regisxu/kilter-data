@@ -37,6 +37,27 @@
                 </div>
             </header>
 
+            <!-- Filter Bar -->
+            <div id="filter-bar" class="filter-bar">
+                <div class="filter-bar-item" onclick="showFilterPanel()">
+                    <span class="filter-label">时间</span>
+                    <span id="filter-bar-time" class="filter-value">全部</span>
+                </div>
+                <div class="filter-bar-item" onclick="showFilterPanel()">
+                    <span class="filter-label">类型</span>
+                    <span id="filter-bar-type" class="filter-value">全部</span>
+                </div>
+                <div class="filter-bar-item" onclick="showFilterPanel()">
+                    <span class="filter-label">角度</span>
+                    <span id="filter-bar-angle" class="filter-value">全部</span>
+                </div>
+                <div class="filter-bar-item" onclick="showFilterPanel()">
+                    <span class="filter-label">难度</span>
+                    <span id="filter-bar-diff" class="filter-value">全部</span>
+                </div>
+                <button class="btn-icon filter-btn" onclick="showFilterPanel()">🔍</button>
+            </div>
+
             <!-- 筛选面板 -->
             <div id="filter-panel" class="filter-panel">
                 <div class="filter-group">
