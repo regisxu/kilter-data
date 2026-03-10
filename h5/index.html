@@ -62,7 +62,7 @@
             <div id="filter-panel" class="filter-panel">
                 <div class="filter-group">
                     <label>时间范围</label>
-                    <select id="filter-time" onchange="applyFilters()">
+                    <select id="filter-time" onchange="onTimeFilterChange()">
                         <option value="all">全部时间</option>
                         <option value="7">最近7天</option>
                         <option value="30">最近30天</option>
@@ -73,7 +73,13 @@
                         <option value="2024">2024年</option>
                         <option value="2023">2023年</option>
                         <option value="2022">2022年</option>
+                        <option value="custom">自定义...</option>
                     </select>
+                    <div id="custom-date-range" class="custom-date-range" style="display: none;">
+                        <input type="date" id="date-start" onchange="applyFilters()">
+                        <span>至</span>
+                        <input type="date" id="date-end" onchange="applyFilters()">
+                    </div>
                 </div>
 
                 <div class="filter-group">

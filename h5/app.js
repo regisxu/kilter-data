@@ -327,6 +327,20 @@ function hideFilterPanel() {
     document.getElementById('filter-panel').classList.remove('active');
 }
 
+// 时间筛选变化处理
+function onTimeFilterChange() {
+    const timeFilter = document.getElementById('filter-time').value;
+    const customDateRange = document.getElementById('custom-date-range');
+    
+    if (timeFilter === 'custom') {
+        customDateRange.style.display = 'flex';
+    } else {
+        customDateRange.style.display = 'none';
+    }
+    
+    applyFilters();
+}
+
 // 应用筛选
 function applyFilters() {
     const timeFilter = document.getElementById('filter-time').value;
@@ -339,6 +353,10 @@ function applyFilters() {
     // 获取选中的角度
     const angleCheckboxes = document.querySelectorAll('.angles input[type="checkbox"]:checked');
     const selectedAngles = Array.from(angleCheckboxes).map(cb => parseInt(cb.value));
+    
+    // 自定义日期
+    const dateStart = document.getElementById('date-start').value;
+    const dateEnd = document.getElementById('date-end').value;
     
     filteredRecords = allRecords.filter(record => {
         // 类型筛选
@@ -353,7 +371,18 @@ function applyFilters() {
         const now = new Date();
         
         if (timeFilter !== 'all') {
-            if (['7', '30', '90', '365'].includes(timeFilter)) {
+            if (timeFilter === 'custom') {
+                // 自定义日期范围
+                if (dateStart) {
+                    const start = new Date(dateStart);
+                    if (recordDate < start) return false;
+                }
+                if (dateEnd) {
+                    const end = new Date(dateEnd);
+                    end.setHours(23, 59, 59);
+                    if (recordDate > end) return false;
+                }
+            } else if (['7', '30', '90', '365'].includes(timeFilter)) {
                 const days = parseInt(timeFilter);
                 const cutoff = new Date(now - days * 24 * 60 * 60 * 1000);
                 if (recordDate < cutoff) return false;
@@ -392,21 +421,31 @@ function updateFilterBar() {
     const showBid = document.getElementById('filter-bid').checked;
     const diffMin = document.getElementById('diff-min').value;
     const diffMax = document.getElementById('diff-max').value;
+    const dateStart = document.getElementById('date-start').value;
+    const dateEnd = document.getElementById('date-end').value;
     
     // 时间
-    const timeText = {
-        'all': '全部',
-        '7': '7天',
-        '30': '30天',
-        '90': '90天',
-        '365': '1年',
-        '2026': '2026',
-        '2025': '2025',
-        '2024': '2024',
-        '2023': '2023',
-        '2022': '2022'
-    };
-    document.getElementById('filter-bar-time').textContent = timeText[timeFilter] || timeFilter;
+    let timeText = '全部';
+    if (timeFilter === 'custom' && (dateStart || dateEnd)) {
+        const start = dateStart ? dateStart.slice(5) : '...';
+        const end = dateEnd ? dateEnd.slice(5) : '...';
+        timeText = `${start}-${end}`;
+    } else {
+        const timeMap = {
+            'all': '全部',
+            '7': '7天',
+            '30': '30天',
+            '90': '90天',
+            '365': '1年',
+            '2026': '2026',
+            '2025': '2025',
+            '2024': '2024',
+            '2023': '2023',
+            '2022': '2022'
+        };
+        timeText = timeMap[timeFilter] || timeFilter;
+    }
+    document.getElementById('filter-bar-time').textContent = timeText;
     
     // 类型
     let typeText = '全部';
