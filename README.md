@@ -5,12 +5,12 @@
 ## 功能特性
 
 - 🔐 自动登录获取认证令牌
-- 📊 增量同步线路数据（climbs）
+- 📊 **增量同步** - 只同步新增/更新的数据，支持断点续传
 - 📈 同步线路统计数据（climb_stats）
 - ✅ 同步完攀记录（ascents）
 - 🔄 同步尝试记录（bids）
 - 💾 本地 SQLite 存储，支持离线分析
-- 📅 支持按年份筛选数据
+- 📱 支持全量同步（35万+条线路）
 
 ## 项目结构
 
@@ -19,61 +19,91 @@
 ├── API_SPEC.md           # API 规范文档
 ├── DATABASE_SCHEMA.md    # 数据库 Schema 设计
 ├── kilter_sync.py        # 核心同步模块
-├── fetch_2026.py         # 2026 年数据抓取脚本
-├── requirements.md       # 项目需求文档
 └── rest/                 # API 示例数据
     ├── kilter            # API 请求示例
-    ├── *.json            # API 响应示例
+    └── *.json            # API 响应示例
 ```
 
 ## 快速开始
 
-### 1. 安装依赖
+### 要求
 
-本项目仅使用 Python 标准库，无需额外安装依赖。
+- Python 3.7+
+- 仅使用 Python 标准库，无需额外依赖
 
-要求: Python 3.7+
+### 首次全量同步
 
-### 2. 抓取 2026 年数据
+首次同步会下载所有数据（约 35万+ 条线路，可能需要 10-30 分钟）：
 
 ```bash
-python fetch_2026.py --username YOUR_USERNAME --password YOUR_PASSWORD
+python kilter_sync.py -u YOUR_USERNAME -p YOUR_PASSWORD
 ```
 
-或使用环境变量：
+### 增量同步
+
+后续同步只会下载新增或更新的数据（通常几秒钟完成）：
 
 ```bash
-export KILTER_USERNAME=your_username
-export KILTER_PASSWORD=your_password
-python fetch_2026.py
-```
-
-### 3. 通用同步工具
-
-```bash
-# 同步所有数据
+# 使用相同命令，自动检测增量数据
 python kilter_sync.py -u YOUR_USERNAME -p YOUR_PASSWORD
 
-# 指定数据库路径
-python kilter_sync.py -u USERNAME -p PASSWORD -d my_data.db
-
-# 交互式输入凭据
+# 或使用环境变量
+export KILTER_USERNAME=your_username
+export KILTER_PASSWORD=your_password
 python kilter_sync.py
+```
+
+### 交互式输入
+
+```bash
+python kilter_sync.py
+# 然后根据提示输入用户名和密码
+```
+
+## 增量同步原理
+
+工具使用 `sync_state` 表记录每个资源的最后同步时间：
+
+| 资源 | 说明 |
+|------|------|
+| `climbs` | 线路信息 |
+| `climb_stats` | 线路统计数据 |
+| `ascents` | 你的完攀记录 |
+| `bids` | 你的尝试记录 |
+
+每次同步时：
+1. 查询上次同步时间
+2. 只请求该时间之后更新的数据
+3. 更新同步时间戳
+
+### 强制全量同步
+
+如果需要重新同步所有数据，删除数据库即可：
+
+```bash
+# Windows
+del kilter.db
+
+# Linux/Mac
+rm kilter.db
+
+# 然后重新运行同步
+python kilter_sync.py -u USERNAME -p PASSWORD
 ```
 
 ## 数据库说明
 
-数据存储在 SQLite 数据库中，主要包含以下表：
+数据存储在 SQLite 数据库 `kilter.db` 中：
 
-| 表名 | 说明 |
-|------|------|
-| `climbs` | 线路信息（名称、角度、岩点布局等） |
-| `climb_stats` | 线路统计（完攀人数、平均难度/质量等） |
-| `ascents` | 完攀记录（用户成功完成的线路） |
-| `bids` | 尝试记录（用户尝试但未完成的线路） |
-| `sync_state` | 同步状态（记录上次同步时间） |
+| 表名 | 说明 | 记录数（参考） |
+|------|------|---------------|
+| `climbs` | 线路信息（名称、角度、岩点布局等） | ~355,000 |
+| `climb_stats` | 线路统计（完攀人数、平均难度/质量等） | ~363,000 |
+| `ascents` | 完攀记录（你成功完成的线路） | ~400+ |
+| `bids` | 尝试记录（你尝试但未完成的线路） | ~200+ |
+| `sync_state` | 同步状态（记录上次同步时间） | 4 |
 
-### 查询示例
+### 常用查询示例
 
 ```sql
 -- 查询 2026 年的完攀记录
@@ -101,6 +131,16 @@ SELECT
     COUNT(*) as count
 FROM ascents
 GROUP BY grade_range;
+
+-- 查询你的攀爬统计（按年份）
+SELECT 
+    strftime('%Y', climbed_at) as year,
+    COUNT(*) as ascents,
+    AVG(difficulty) as avg_difficulty
+FROM ascents
+WHERE climbed_at IS NOT NULL
+GROUP BY year
+ORDER BY year DESC;
 ```
 
 ## API 文档
@@ -115,10 +155,6 @@ GROUP BY grade_range;
 | `/sync` | POST | 增量同步数据 |
 | `/climbs/{uuid}/info` | GET | 获取线路详情 |
 | `/climbs/{uuid}/logbook` | GET | 获取用户在该线路的记录 |
-
-## 数据库 Schema
-
-详细的数据库设计请参考 [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)。
 
 ## 数据字段说明
 
@@ -150,21 +186,12 @@ GROUP BY grade_range;
 - `bid_count`: 尝试次数
 - `climbed_at`: 最后尝试时间
 
-## 开发计划
-
-- [x] 分析 Kilterboard API 并生成 Spec 文档
-- [x] 设计数据库 Schema
-- [x] 实现基础同步功能
-- [x] 实现 2026 年数据抓取
-- [ ] 添加数据可视化功能
-- [ ] 支持增量备份
-- [ ] 添加数据导出功能（CSV/Excel）
-
 ## 注意事项
 
 1. **隐私**: 本工具仅供个人备份和分析使用，请勿分享他人数据
 2. **频率限制**: API 可能有频率限制，请勿过于频繁地同步
-3. **数据完整性**: 首次同步可能需要较长时间，请耐心等待
+3. **首次同步**: 首次同步可能需要较长时间（10-30分钟），请耐心等待
+4. **增量同步**: 日常同步通常只需几秒钟
 
 ## License
 
