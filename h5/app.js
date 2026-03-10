@@ -471,13 +471,21 @@ function updateFilterBar() {
     else if (!showAscent && !showBid) typeText = '无';
     document.getElementById('filter-bar-type').textContent = typeText;
     
-    // 角度
+    // 角度 (0-70, 每5度一个，共15个)
     const angleCheckboxes = document.querySelectorAll('.angles input[type="checkbox"]:checked');
-    const selectedAngles = Array.from(angleCheckboxes).map(cb => cb.value);
+    const selectedAngles = Array.from(angleCheckboxes).map(cb => parseInt(cb.value));
     let angleText = '全部';
     if (selectedAngles.length === 1) angleText = selectedAngles[0] + '°';
-    else if (selectedAngles.length > 1 && selectedAngles.length < 15) angleText = selectedAngles.length + '个';
-    else if (selectedAngles.length === 0) angleText = '无';
+    else if (selectedAngles.length > 1 && selectedAngles.length < 15) {
+        // 显示范围，如 "30°-50°"
+        const min = Math.min(...selectedAngles);
+        const max = Math.max(...selectedAngles);
+        if (max - min === (selectedAngles.length - 1) * 5) {
+            angleText = min + '°-' + max + '°';
+        } else {
+            angleText = selectedAngles.length + '个';
+        }
+    } else if (selectedAngles.length === 0) angleText = '无';
     document.getElementById('filter-bar-angle').textContent = angleText;
     
     // 难度
