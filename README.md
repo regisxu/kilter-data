@@ -119,13 +119,16 @@ GROUP BY b.climb_uuid
 ORDER BY total_attempts DESC
 LIMIT 10;
 
--- 查询平均难度分布
+-- 查询平均难度分布（基于数据分析的 V-grade 映射）
 SELECT 
     CASE 
-        WHEN difficulty < 10 THEN 'V0-V2'
-        WHEN difficulty < 15 THEN 'V3-V4'
-        WHEN difficulty < 20 THEN 'V5-V6'
-        WHEN difficulty < 25 THEN 'V7-V8'
+        WHEN difficulty < 16 THEN 'V0-V2'
+        WHEN difficulty < 17.5 THEN 'V3'
+        WHEN difficulty < 19.5 THEN 'V4'
+        WHEN difficulty < 21.5 THEN 'V5'
+        WHEN difficulty < 22.5 THEN 'V6'
+        WHEN difficulty < 23.5 THEN 'V7'
+        WHEN difficulty < 25 THEN 'V8'
         ELSE 'V9+'
     END as grade_range,
     COUNT(*) as count
@@ -155,6 +158,35 @@ ORDER BY year DESC;
 | `/sync` | POST | 增量同步数据 |
 | `/climbs/{uuid}/info` | GET | 获取线路详情 |
 | `/climbs/{uuid}/logbook` | GET | 获取用户在该线路的记录 |
+
+## Difficulty 数值与 V-grade 对照表
+
+基于 **Gumby Soup** 线路数据分析（对比不同角度的 `difficulty_average` 与 App 显示的 V-grade）：
+
+| difficulty 范围 | V-grade | 示例角度 |
+|----------------|---------|----------|
+| < 16 | V0-V2 | 10° (~16.7) |
+| 16 - 17.5 | V3 | 15° (17.0) |
+| 17.5 - 19.5 | V4 | 20-30° (~18.2) |
+| 19.5 - 21.5 | V5 | 35-55° (~20-21) |
+| 21.5 - 22.5 | V6 | 50° (22.1) |
+| 22.5 - 23.5 | V7 | 60° (23.0) |
+| 23.5 - 25 | V8 | 70° (~24) |
+| >= 25 | V9+ | - |
+
+**参考数据**（Gumby Soup 线路统计）：
+```
+角度 | difficulty | V-grade
+-----|-----------|---------
+10°  | 16.67     | V2
+15°  | 17.00     | V3
+20°  | 18.17     | V4
+30°  | 18.33     | V4
+40°  | 20.89     | V5
+50°  | 22.08     | V6
+60°  | 23.00     | V7
+70°  | ~24       | V8
+```
 
 ## 数据字段说明
 

@@ -429,15 +429,19 @@ function formatDateTime(dateStr) {
     });
 }
 
+// 根据 difficulty 数值获取 V-grade（基于 Gumby Soup 数据分析）
+// 数据分析：15°=V3(~17), 20-30°=V4(~18), 35-55°=V5(~20-21), 50°=V6(~22), 60°=V7(~23), 70°=V8(~24)
 function getDifficultyLabel(difficulty) {
     if (!difficulty || difficulty === '-') return '';
-    const d = parseInt(difficulty);
-    if (d < 10) return '(V0-V2)';
-    if (d < 15) return '(V3-V4)';
-    if (d < 20) return '(V5-V6)';
-    if (d < 25) return '(V7-V8)';
-    if (d < 30) return '(V9-V11)';
-    return '(V12+)';
+    const d = parseFloat(difficulty);
+    if (d < 16) return 'V0-V2';
+    if (d < 17.5) return 'V3';
+    if (d < 19.5) return 'V4';
+    if (d < 21.5) return 'V5';
+    if (d < 22.5) return 'V6';
+    if (d < 23.5) return 'V7';
+    if (d < 25) return 'V8';
+    return 'V9+';
 }
 
 function escapeHtml(text) {
