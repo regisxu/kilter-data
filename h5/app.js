@@ -202,10 +202,8 @@ function createRecordCard(record) {
     const date = formatDate(record.climbed_at);
     const typeIcon = record.type === 'ascent' ? '✅' : '🔄';
     const typeClass = record.type === 'ascent' ? 'ascent' : 'bid';
-    
-    // 使用角度对应的 V-grade
-    const vGrade = getVGradeByAngle(record.angle);
     const difficulty = record.difficulty || record.stats.difficulty_average || '-';
+    const difficultyLabel = getDifficultyLabel(difficulty);
     
     div.innerHTML = `
         <div class="card-header">
@@ -215,8 +213,8 @@ function createRecordCard(record) {
         <div class="card-body">
             <h3 class="climb-name">${escapeHtml(record.climb_name || 'Unknown')}</h3>
             <div class="card-meta">
-                <span class="meta-item">📐 ${record.angle}° (${vGrade})</span>
-                <span class="meta-item">⭐ ${difficulty}</span>
+                <span class="meta-item">📐 ${record.angle}°</span>
+                <span class="meta-item">⭐ ${difficulty} ${difficultyLabel}</span>
                 <span class="meta-item">🔄 ${record.bid_count || 0} 次尝试</span>
             </div>
         </div>
@@ -237,9 +235,6 @@ function showDetail(record) {
     const setter = record.setter_username || 'Unknown';
     const comment = record.comment || '无评论';
     
-    // 使用角度对应的 V-grade
-    const vGrade = getVGradeByAngle(record.angle);
-    
     body.innerHTML = `
         <div class="detail-header">
             <h2>${escapeHtml(record.climb_name || 'Unknown')}</h2>
@@ -251,7 +246,7 @@ function showDetail(record) {
             <div class="detail-grid">
                 <div class="detail-item">
                     <label>角度</label>
-                    <value>${record.angle}° → ${vGrade}</value>
+                    <value>${record.angle}°</value>
                 </div>
                 <div class="detail-item">
                     <label>定线员</label>
@@ -259,7 +254,7 @@ function showDetail(record) {
                 </div>
                 <div class="detail-item">
                     <label>你的难度评分</label>
-                    <value>${record.difficulty || '-'}</value>
+                    <value>${record.difficulty || '-'} ${getDifficultyLabel(record.difficulty)}</value>
                 </div>
                 <div class="detail-item">
                     <label>你的质量评分</label>
@@ -434,38 +429,15 @@ function formatDateTime(dateStr) {
     });
 }
 
-// 角度到 V-grade 的映射（基于 Kilterboard 标准）
-const ANGLE_TO_VGRADE = {
-    10: 'V2',
-    15: 'V3',
-    20: 'V4',
-    25: 'V4',
-    30: 'V4',
-    35: 'V5',
-    40: 'V5',
-    45: 'V5',
-    50: 'V6',
-    55: 'V5',
-    60: 'V7',
-    70: 'V8'
-};
-
-// 根据角度获取 V-grade
-function getVGradeByAngle(angle) {
-    if (!angle) return '-';
-    return ANGLE_TO_VGRADE[angle] || `V?(${angle}°)`;
-}
-
-// 根据 difficulty 数值获取 V-grade 范围（旧方法，备用）
 function getDifficultyLabel(difficulty) {
     if (!difficulty || difficulty === '-') return '';
     const d = parseInt(difficulty);
-    if (d < 10) return 'V0-V2';
-    if (d < 15) return 'V3-V4';
-    if (d < 20) return 'V5-V6';
-    if (d < 25) return 'V7-V8';
-    if (d < 30) return 'V9-V11';
-    return 'V12+';
+    if (d < 10) return '(V0-V2)';
+    if (d < 15) return '(V3-V4)';
+    if (d < 20) return '(V5-V6)';
+    if (d < 25) return '(V7-V8)';
+    if (d < 30) return '(V9-V11)';
+    return '(V12+)';
 }
 
 function escapeHtml(text) {
