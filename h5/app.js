@@ -1062,13 +1062,22 @@ function renderGradeCharts() {
     // 2. 完攀率柱状图
     const rateChart = statsCharts['grade-rate'] || echarts.init(document.getElementById('chart-grade-rate'));
     statsCharts['grade-rate'] = rateChart;
+    
+    // 构建dataMap用于tooltip查询
+    const completionRateMap = {};
+    statsData.completionRate.forEach(d => {
+        completionRateMap[d.grade] = { asc: d.asc, bid: d.bid };
+    });
+    
     rateChart.setOption({
         tooltip: {
             trigger: 'axis',
-            formatter: '{b}: {c}% (完攀{asc}次, 尝试{bid}次)',
-            extra: {
-                asc: statsData.completionRate.map(d => d.asc),
-                bid: statsData.completionRate.map(d => d.bid)
+            formatter: function(params) {
+                const grade = params[0].name;
+                const rate = params[0].value;
+                const data = completionRateMap[grade] || { asc: 0, bid: 0 };
+                const total = data.asc + data.bid;
+                return `${grade}: ${rate}%<br/>完攀: ${data.asc}次, 尝试: ${data.bid}次<br/>总计: ${total}次`;
             }
         },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
