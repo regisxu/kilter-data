@@ -193,8 +193,12 @@ body {
 }
 
 .filter-btn {
-    margin-left: auto;
     align-self: center;
+    flex-shrink: 0;
+}
+
+.filter-bar::-webkit-scrollbar {
+    display: none;
 }
 
 /* Filter Panel */

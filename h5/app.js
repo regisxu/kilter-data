@@ -575,6 +575,14 @@ function updateFilterBar() {
         diffText = minLabel.split('/')[0] + '-' + maxLabel.split('/')[0];
     }
     document.getElementById('filter-bar-diff').textContent = diffText;
+    
+    // 线路名
+    const searchText = document.getElementById('filter-search').value.trim();
+    let nameText = '全部';
+    if (searchText) {
+        nameText = searchText.length > 6 ? searchText.slice(0, 6) + '...' : searchText;
+    }
+    document.getElementById('filter-bar-name').textContent = nameText;
 }
 
 // 重置筛选
