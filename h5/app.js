@@ -1505,3 +1505,28 @@ window.addEventListener('resize', () => {
         }
     });
 });
+
+// 重新加载数据库
+async function reloadDatabase() {
+    const choice = confirm('选择操作：\n• 点击"确定" - 清除缓存并重新选择数据库文件\n• 点击"取消" - 仅刷新页面');
+    
+    if (choice) {
+        // 清除IndexedDB缓存
+        try {
+            const db = await openIndexedDB();
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            await new Promise((resolve, reject) => {
+                const request = store.delete(DB_KEY);
+                request.onsuccess = resolve;
+                request.onerror = reject;
+            });
+            console.log('缓存已清除');
+        } catch (e) {
+            console.error('清除缓存失败:', e);
+        }
+    }
+    
+    // 刷新页面
+    location.reload();
+}
