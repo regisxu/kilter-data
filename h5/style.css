@@ -773,3 +773,336 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
 }
+
+/* ==================== 统计页面样式 ==================== */
+
+/* 统计页面容器 */
+.stats-page {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f5f7fa;
+    z-index: 400;
+    overflow-y: auto;
+    padding-bottom: 30px;
+}
+
+.stats-page.active {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* 统计页头部 */
+.stats-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.stats-header h2 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+}
+
+/* Tab切换 */
+.stats-tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 16px;
+    position: sticky;
+    top: 60px;
+    z-index: 9;
+}
+
+.stats-tab {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.stats-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.stats-tab:hover {
+    color: var(--primary-color);
+}
+
+/* 统计内容区 */
+.stats-content {
+    display: none;
+    padding: 16px;
+}
+
+.stats-content.active {
+    display: block;
+}
+
+/* KPI卡片 */
+.kpi-cards {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.kpi-cards::-webkit-scrollbar {
+    display: none;
+}
+
+.kpi-card {
+    flex: 0 0 auto;
+    min-width: 100px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.kpi-card.ascent {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.kpi-card.bid {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.kpi-card.flash {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.kpi-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* 图表区域 */
+.stats-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+.chart-container.full-width {
+    width: 100%;
+}
+
+.chart-container h3 {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chart {
+    width: 100%;
+    height: 280px;
+}
+
+/* 趋势控制 */
+.trend-controls {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+}
+
+.trend-granularity {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.granularity-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.granularity-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* SQL探索面板 */
+.sql-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+.sql-templates {
+    margin-bottom: 12px;
+}
+
+.sql-templates label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 6px;
+}
+
+.sql-templates select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+}
+
+.sql-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: vertical;
+    margin-bottom: 12px;
+}
+
+.sql-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.sql-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sql-actions button {
+    flex: 1;
+}
+
+.sql-result {
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-height: 150px;
+    max-height: 400px;
+    overflow: auto;
+}
+
+.sql-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.sql-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.sql-table th,
+.sql-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sql-table th {
+    background: #f0f2f5;
+    font-weight: 600;
+    color: var(--text-color);
+    position: sticky;
+    top: 0;
+}
+
+.sql-table tr:hover {
+    background: #f8f9fa;
+}
+
+.sql-chart-container {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.sql-chart-container h4 {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 12px;
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+    .kpi-card {
+        min-width: 90px;
+        padding: 14px 10px;
+    }
+    
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+    
+    .stats-tab {
+        font-size: 0.85rem;
+        padding: 12px 4px;
+    }
+    
+    .chart {
+        height: 240px;
+    }
+    
+    .sql-actions {
+        flex-direction: column;
+    }
+}

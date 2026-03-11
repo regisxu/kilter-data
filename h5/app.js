@@ -724,3 +724,767 @@ async function loadDbFromCache() {
 
 // 启动
 init();
+
+// ==================== 统计分析模块 ====================
+
+// 显示统计页面
+function showStatsPage() {
+    document.getElementById('stats-page').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // 延迟初始化图表，确保DOM已渲染
+    setTimeout(() => {
+        initStatsCharts();
+    }, 100);
+}
+
+// 隐藏统计页面
+function hideStatsPage() {
+    document.getElementById('stats-page').classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // 销毁图表释放资源
+    disposeStatsCharts();
+}
+
+// 切换统计Tab
+function switchStatsTab(tabName) {
+    // 更新Tab样式
+    document.querySelectorAll('.stats-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.tab === tabName) {
+            tab.classList.add('active');
+        }
+    });
+    
+    // 更新内容显示
+    document.querySelectorAll('.stats-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`stats-${tabName}`).classList.add('active');
+    
+    // 如果切换到SQL之外的Tab，重新渲染图表
+    if (tabName !== 'sql') {
+        setTimeout(() => {
+            renderStatsCharts(tabName);
+        }, 50);
+    }
+}
+
+// 图表实例缓存
+let statsCharts = {};
+let currentTrendGranularity = 'week';
+
+// 初始化统计图表
+function initStatsCharts() {
+    // 计算统计数据
+    calculateStatsData();
+    
+    // 初始化概览Tab图表
+    renderOverviewCharts();
+}
+
+// 销毁图表
+function disposeStatsCharts() {
+    Object.values(statsCharts).forEach(chart => {
+        if (chart && !chart.isDisposed()) {
+            chart.dispose();
+        }
+    });
+    statsCharts = {};
+}
+
+// 统计数据缓存
+let statsData = {};
+
+// 计算统计数据
+function calculateStatsData() {
+    const ascents = allRecords.filter(r => r.type === 'ascent');
+    const bids = allRecords.filter(r => r.type === 'bid');
+    
+    // Flash: 尝试次数<=1的完攀
+    const flashAscents = ascents.filter(a => (a.bid_count || 0) <= 1);
+    
+    // 最高难度
+    let maxDifficulty = 0;
+    ascents.forEach(a => {
+        const diff = a.difficulty || a.stats?.difficulty_average || 0;
+        if (diff > maxDifficulty) maxDifficulty = diff;
+    });
+    
+    // 更新KPI
+    document.getElementById('kpi-total').textContent = allRecords.length;
+    document.getElementById('kpi-ascent').textContent = ascents.length;
+    document.getElementById('kpi-bid').textContent = bids.length;
+    document.getElementById('kpi-flash').textContent = flashAscents.length;
+    document.getElementById('kpi-max-grade').textContent = maxDifficulty > 0 ? getDifficultyLabel(maxDifficulty).split('/')[1] : '-';
+    
+    // 角度分布
+    const angleDist = {};
+    allRecords.forEach(r => {
+        angleDist[r.angle] = (angleDist[r.angle] || 0) + 1;
+    });
+    
+    // 难度分布（V-grade）
+    const gradeDist = { ascent: {}, bid: {} };
+    allRecords.forEach(r => {
+        const diff = Math.round(r.difficulty || r.stats?.difficulty_average || 0);
+        if (diff > 0) {
+            const vGrade = getDifficultyLabel(diff).split('/')[1];
+            if (r.type === 'ascent') {
+                gradeDist.ascent[vGrade] = (gradeDist.ascent[vGrade] || 0) + 1;
+            } else {
+                gradeDist.bid[vGrade] = (gradeDist.bid[vGrade] || 0) + 1;
+            }
+        }
+    });
+    
+    // 完攀率
+    const allGrades = new Set([...Object.keys(gradeDist.ascent), ...Object.keys(gradeDist.bid)]);
+    const completionRate = [];
+    allGrades.forEach(grade => {
+        const asc = gradeDist.ascent[grade] || 0;
+        const bid = gradeDist.bid[grade] || 0;
+        const total = asc + bid;
+        completionRate.push({
+            grade,
+            rate: total > 0 ? (asc / total * 100).toFixed(1) : 0,
+            asc,
+            bid
+        });
+    });
+    completionRate.sort((a, b) => vGradeToNum(a.grade) - vGradeToNum(b.grade));
+    
+    // 尝试次数分布
+    const bidCountDist = {};
+    allRecords.forEach(r => {
+        const count = r.bid_count || 0;
+        const range = count <= 1 ? '1次(Flash)' : 
+                      count <= 3 ? '2-3次' :
+                      count <= 5 ? '4-5次' :
+                      count <= 10 ? '6-10次' : '10次以上';
+        bidCountDist[range] = (bidCountDist[range] || 0) + 1;
+    });
+    
+    // 时间趋势（6个月）
+    const monthTrend = {};
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        monthTrend[key] = { month: key, count: 0 };
+    }
+    allRecords.forEach(r => {
+        const date = new Date(r.climbed_at);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (monthTrend[key]) {
+            monthTrend[key].count++;
+        }
+    });
+    
+    // 热力图数据（近3个月）
+    const heatmapData = [];
+    const heatmapDates = [];
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    
+    const dateCount = {};
+    allRecords.forEach(r => {
+        const date = r.climbed_at.split(' ')[0];
+        dateCount[date] = (dateCount[date] || 0) + 1;
+    });
+    
+    // 星期/时段偏好
+    const weekdayDist = [0, 0, 0, 0, 0, 0, 0]; // 周日到周六
+    allRecords.forEach(r => {
+        const date = new Date(r.climbed_at);
+        weekdayDist[date.getDay()]++;
+    });
+    
+    statsData = {
+        ascents,
+        bids,
+        flashCount: flashAscents.length,
+        maxDifficulty,
+        angleDist,
+        gradeDist,
+        completionRate,
+        bidCountDist,
+        monthTrend: Object.values(monthTrend),
+        dateCount,
+        weekdayDist
+    };
+}
+
+// V-grade 转数字用于排序
+function vGradeToNum(grade) {
+    const match = grade.match(/V(\d+)/);
+    return match ? parseInt(match[1]) : 0;
+}
+
+// 渲染统计图表
+function renderStatsCharts(tabName) {
+    if (tabName === 'overview' || !tabName) {
+        renderOverviewCharts();
+    } else if (tabName === 'grade') {
+        renderGradeCharts();
+    } else if (tabName === 'trend') {
+        renderTrendCharts();
+    }
+}
+
+// 渲染概览图表
+function renderOverviewCharts() {
+    // 1. 完攀/尝试饼图
+    const pieChart = statsCharts['overview-pie'] || echarts.init(document.getElementById('chart-overview-pie'));
+    statsCharts['overview-pie'] = pieChart;
+    pieChart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: { bottom: '5%', left: 'center' },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+            label: { show: false },
+            emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' }},
+            data: [
+                { value: statsData.ascents.length, name: '完攀', itemStyle: { color: '#4caf50' }},
+                { value: statsData.bids.length, name: '尝试', itemStyle: { color: '#ff9800' }}
+            ]
+        }]
+    });
+    
+    // 2. 角度玫瑰图
+    const angleChart = statsCharts['overview-angle'] || echarts.init(document.getElementById('chart-overview-angle'));
+    statsCharts['overview-angle'] = angleChart;
+    const angleData = Object.entries(statsData.angleDist)
+        .map(([angle, count]) => ({ value: count, name: angle + '°' }))
+        .sort((a, b) => parseInt(a.name) - parseInt(b.name));
+    angleChart.setOption({
+        tooltip: { trigger: 'item' },
+        series: [{
+            type: 'pie',
+            radius: [20, 80],
+            center: ['50%', '50%'],
+            roseType: 'area',
+            itemStyle: { borderRadius: 5 },
+            data: angleData,
+            label: { fontSize: 11 }
+        }]
+    });
+    
+    // 3. 6个月趋势
+    const trendChart = statsCharts['overview-trend'] || echarts.init(document.getElementById('chart-overview-trend'));
+    statsCharts['overview-trend'] = trendChart;
+    trendChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: statsData.monthTrend.map(d => d.month),
+            axisLabel: { fontSize: 11 }
+        },
+        yAxis: { type: 'value', minInterval: 1 },
+        series: [{
+            data: statsData.monthTrend.map(d => d.count),
+            type: 'bar',
+            itemStyle: { color: '#4a90d9', borderRadius: [4, 4, 0, 0] },
+            barWidth: '50%'
+        }]
+    });
+}
+
+// 渲染难度分析图表
+function renderGradeCharts() {
+    // 1. 难度金字塔
+    const pyramidChart = statsCharts['grade-pyramid'] || echarts.init(document.getElementById('chart-grade-pyramid'));
+    statsCharts['grade-pyramid'] = pyramidChart;
+    
+    // 获取所有难度并排序
+    const allGrades = new Set([
+        ...Object.keys(statsData.gradeDist.ascent),
+        ...Object.keys(statsData.gradeDist.bid)
+    ]);
+    const sortedGrades = Array.from(allGrades).sort((a, b) => vGradeToNum(a) - vGradeToNum(b));
+    
+    pyramidChart.setOption({
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function(params) {
+                let result = params[0].name + '<br/>';
+                params.forEach(p => {
+                    result += p.marker + ' ' + p.seriesName + ': ' + Math.abs(p.value) + '<br/>';
+                });
+                return result;
+            }
+        },
+        legend: { data: ['完攀', '尝试'], bottom: 5 },
+        grid: { left: '3%', right: '4%', bottom: '15%', top: '5%', containLabel: true },
+        xAxis: {
+            type: 'value',
+            axisLabel: { formatter: v => Math.abs(v) }
+        },
+        yAxis: {
+            type: 'category',
+            data: sortedGrades,
+            axisLabel: { fontSize: 11 }
+        },
+        series: [
+            {
+                name: '完攀',
+                type: 'bar',
+                stack: 'total',
+                label: { show: true, position: 'inside' },
+                data: sortedGrades.map(g => statsData.gradeDist.ascent[g] || 0),
+                itemStyle: { color: '#4caf50' }
+            },
+            {
+                name: '尝试',
+                type: 'bar',
+                stack: 'total',
+                label: { show: true, position: 'inside', formatter: v => v.value > 0 ? '-' + v.value : '' },
+                data: sortedGrades.map(g => -(statsData.gradeDist.bid[g] || 0)),
+                itemStyle: { color: '#ff9800' }
+            }
+        ]
+    });
+    
+    // 2. 完攀率柱状图
+    const rateChart = statsCharts['grade-rate'] || echarts.init(document.getElementById('chart-grade-rate'));
+    statsCharts['grade-rate'] = rateChart;
+    rateChart.setOption({
+        tooltip: {
+            trigger: 'axis',
+            formatter: '{b}: {c}% (完攀{asc}次, 尝试{bid}次)',
+            extra: {
+                asc: statsData.completionRate.map(d => d.asc),
+                bid: statsData.completionRate.map(d => d.bid)
+            }
+        },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: statsData.completionRate.map(d => d.grade),
+            axisLabel: { fontSize: 11, rotate: 45 }
+        },
+        yAxis: {
+            type: 'value',
+            max: 100,
+            axisLabel: { formatter: '{value}%' }
+        },
+        series: [{
+            data: statsData.completionRate.map(d => ({
+                value: d.rate,
+                asc: d.asc,
+                bid: d.bid
+            })),
+            type: 'bar',
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#4a90d9' },
+                    { offset: 1, color: '#357abd' }
+                ]),
+                borderRadius: [4, 4, 0, 0]
+            }
+        }]
+    });
+    
+    // 3. 尝试次数分布
+    const bidDistChart = statsCharts['bid-dist'] || echarts.init(document.getElementById('chart-bid-distribution'));
+    statsCharts['bid-dist'] = bidDistChart;
+    const bidDistOrder = ['1次(Flash)', '2-3次', '4-5次', '6-10次', '10次以上'];
+    bidDistChart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        series: [{
+            type: 'pie',
+            radius: ['30%', '60%'],
+            center: ['50%', '50%'],
+            roseType: 'radius',
+            itemStyle: { borderRadius: 5 },
+            data: bidDistOrder.map(range => ({
+                name: range,
+                value: statsData.bidCountDist[range] || 0
+            })).filter(d => d.value > 0),
+            label: { fontSize: 12 }
+        }]
+    });
+}
+
+// 设置趋势粒度
+function setTrendGranularity(granularity) {
+    currentTrendGranularity = granularity;
+    document.querySelectorAll('.granularity-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.gran === granularity) {
+            btn.classList.add('active');
+        }
+    });
+    renderTrendCharts();
+}
+
+// 渲染趋势图表
+function renderTrendCharts() {
+    const granularity = currentTrendGranularity;
+    
+    // 计算时间分组数据
+    const timeData = {};
+    allRecords.forEach(r => {
+        const date = new Date(r.climbed_at);
+        let key;
+        if (granularity === 'week') {
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay());
+            key = weekStart.toISOString().split('T')[0];
+        } else if (granularity === 'month') {
+            key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        } else {
+            key = String(date.getFullYear());
+        }
+        
+        if (!timeData[key]) {
+            timeData[key] = { count: 0, totalDiff: 0, diffCount: 0 };
+        }
+        timeData[key].count++;
+        const diff = r.difficulty || r.stats?.difficulty_average;
+        if (diff) {
+            timeData[key].totalDiff += diff;
+            timeData[key].diffCount++;
+        }
+    });
+    
+    const sortedKeys = Object.keys(timeData).sort();
+    
+    // 1. 热力图 - 显示近3个月的每日活动
+    const heatmapChart = statsCharts['trend-heatmap'] || echarts.init(document.getElementById('chart-trend-heatmap'));
+    statsCharts['trend-heatmap'] = heatmapChart;
+    
+    // 生成近3个月的日期和数据
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 3);
+    
+    const heatmapDates = [];
+    const heatmapValues = [];
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        heatmapDates.push(dateStr);
+        heatmapValues.push(statsData.dateCount[dateStr] || 0);
+    }
+    
+    heatmapChart.setOption({
+        tooltip: { 
+            position: 'top',
+            formatter: p => `${p.name}: ${p.value[1] || 0} 次攀爬`
+        },
+        visualMap: {
+            min: 0,
+            max: Math.max(...heatmapValues, 5),
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: 0,
+            inRange: { color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'] }
+        },
+        calendar: {
+            top: 30,
+            left: 30,
+            right: 30,
+            cellSize: ['auto', 18],
+            range: [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
+            itemStyle: { borderWidth: 0.5 },
+            splitLine: { show: false },
+            dayLabel: { firstDay: 1, nameMap: '周日一二三四五六'.split('') },
+            monthLabel: { nameMap: 'cn' }
+        },
+        series: [{
+            type: 'heatmap',
+            coordinateSystem: 'calendar',
+            data: heatmapDates.map((date, i) => [date, heatmapValues[i]])
+        }]
+    });
+    
+    // 2. 趋势折线+67f1状图
+    const lineChart = statsCharts['trend-line'] || echarts.init(document.getElementById('chart-trend-line'));
+    statsCharts['trend-line'] = lineChart;
+    lineChart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['攀爬次数', '平均难度'], bottom: 0 },
+        grid: { left: '3%', right: '3%', bottom: '15%', top: '10%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: sortedKeys,
+            axisLabel: { fontSize: 11, rotate: granularity === 'week' ? 45 : 0 }
+        },
+        yAxis: [
+            { type: 'value', name: '次数', minInterval: 1 },
+            { type: 'value', name: '难度', min: 10, max: 35 }
+        ],
+        series: [
+            {
+                name: '攀爬次数',
+                type: 'bar',
+                data: sortedKeys.map(k => timeData[k].count),
+                itemStyle: { color: '#4a90d9', borderRadius: [4, 4, 0, 0] }
+            },
+            {
+                name: '平均难度',
+                type: 'line',
+                yAxisIndex: 1,
+                data: sortedKeys.map(k => {
+                    const d = timeData[k];
+                    return d.diffCount > 0 ? (d.totalDiff / d.diffCount).toFixed(1) : null;
+                }),
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 8,
+                lineStyle: { color: '#ff9800', width: 3 },
+                itemStyle: { color: '#ff9800' }
+            }
+        ]
+    });
+    
+    // 3. 星期偏好
+    const weekdayChart = statsCharts['trend-weekday'] || echarts.init(document.getElementById('chart-trend-weekday'));
+    statsCharts['trend-weekday'] = weekdayChart;
+    const weekdayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    weekdayChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: weekdayNames,
+            axisTick: { alignWithLabel: true }
+        },
+        yAxis: { type: 'value', minInterval: 1 },
+        series: [{
+            type: 'bar',
+            data: statsData.weekdayDist,
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#667eea' },
+                    { offset: 1, color: '#764ba2' }
+                ]),
+                borderRadius: [4, 4, 0, 0]
+            },
+            barWidth: '50%'
+        }]
+    });
+}
+
+// ==================== SQL探索功能 ====================
+
+// SQL模板
+const sqlTemplates = {
+    grade_distribution: `SELECT 
+    CASE 
+        WHEN difficulty >= 20 THEN 'V5+'
+        WHEN difficulty >= 18 THEN 'V3-V4'
+        ELSE 'V0-V2'
+    END as grade_range,
+    COUNT(*) as count,
+    SUM(CASE WHEN type = 'ascent' THEN 1 ELSE 0 END) as ascents
+FROM (
+    SELECT difficulty, 'ascent' as type FROM ascents
+    UNION ALL
+    SELECT NULL as difficulty, 'bid' as type FROM bids
+)
+GROUP BY grade_range
+ORDER BY count DESC`,
+
+    monthly_stats: `SELECT 
+    strftime('%Y-%m', climbed_at) as month,
+    COUNT(*) as total,
+    SUM(CASE WHEN type = 'ascent' THEN 1 ELSE 0 END) as ascents,
+    SUM(CASE WHEN type = 'bid' THEN 1 ELSE 0 END) as bids
+FROM (
+    SELECT climbed_at, 'ascent' as type FROM ascents
+    UNION ALL
+    SELECT climbed_at, 'bid' as type FROM bids
+)
+GROUP BY month
+ORDER BY month DESC
+LIMIT 12`,
+
+    setter_ranking: `SELECT 
+    setter_username,
+    COUNT(*) as climb_count,
+    COUNT(DISTINCT a.uuid) as my_climbs
+FROM climbs c
+LEFT JOIN ascents a ON c.uuid = a.climb_uuid
+WHERE setter_username IS NOT NULL
+GROUP BY setter_username
+ORDER BY my_climbs DESC
+LIMIT 20`,
+
+    project_list: `SELECT 
+    c.name,
+    c.setter_username,
+    b.angle,
+    b.bid_count,
+    b.climbed_at as last_attempt
+FROM bids b
+JOIN climbs c ON b.climb_uuid = c.uuid
+WHERE b.bid_count > 5
+AND NOT EXISTS (
+    SELECT 1 FROM ascents a 
+    WHERE a.climb_uuid = b.climb_uuid AND a.angle = b.angle
+)
+ORDER BY b.bid_count DESC`,
+
+    repeat_climbs: `SELECT 
+    c.name,
+    c.setter_username,
+    COUNT(*) as send_count,
+    MIN(a.climbed_at) as first_send,
+    MAX(a.climbed_at) as last_send
+FROM ascents a
+JOIN climbs c ON a.climb_uuid = c.uuid
+GROUP BY a.climb_uuid
+HAVING COUNT(*) > 1
+ORDER BY send_count DESC`
+};
+
+// 加载SQL模板
+function loadSqlTemplate() {
+    const select = document.getElementById('sql-template');
+    const template = select.value;
+    if (template && sqlTemplates[template]) {
+        document.getElementById('sql-input').value = sqlTemplates[template];
+    }
+}
+
+// 执行SQL查询
+function executeSqlQuery() {
+    const sql = document.getElementById('sql-input').value.trim();
+    if (!sql) {
+        showSqlError('请输入SQL查询语句');
+        return;
+    }
+    
+    if (!db) {
+        showSqlError('数据库未加载');
+        return;
+    }
+    
+    try {
+        const result = db.exec(sql);
+        displaySqlResult(result, sql);
+    } catch (error) {
+        showSqlError('查询错误: ' + error.message);
+    }
+}
+
+// 显示SQL查询结果
+function displaySqlResult(result, sql) {
+    const resultContainer = document.getElementById('sql-result');
+    const chartContainer = document.getElementById('sql-chart-container');
+    
+    if (!result || result.length === 0) {
+        resultContainer.innerHTML = '<div class="sql-placeholder">查询返回空结果</div>';
+        chartContainer.style.display = 'none';
+        return;
+    }
+    
+    const { columns, values } = result[0];
+    
+    // 构建表格
+    let tableHtml = '<table class="sql-table"><thead><tr>';
+    columns.forEach(col => {
+        tableHtml += `<th>${escapeHtml(col)}</th>`;
+    });
+    tableHtml += '</tr></thead><tbody>';
+    
+    values.forEach(row => {
+        tableHtml += '<tr>';
+        row.forEach(cell => {
+            tableHtml += `<td>${escapeHtml(String(cell ?? ''))}</td>`;
+        });
+        tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table>';
+    
+    resultContainer.innerHTML = tableHtml;
+    
+    // 尝试可视化（如果是简单的数值查询）
+    if (columns.length >= 2 && values.length > 0) {
+        chartContainer.style.display = 'block';
+        renderSqlChart(columns, values);
+    } else {
+        chartContainer.style.display = 'none';
+    }
+}
+
+// 渲染SQL结果图表
+function renderSqlChart(columns, values) {
+    const chartDom = document.getElementById('chart-sql-result');
+    const chart = statsCharts['sql-result'] || echarts.init(chartDom);
+    statsCharts['sql-result'] = chart;
+    
+    // 检查是否可以作为柱状图显示
+    const firstCol = columns[0];
+    const secondCol = columns[1];
+    
+    const isNumeric = values.every(row => !isNaN(parseFloat(row[1])));
+    
+    if (isNumeric) {
+        const xData = values.map(row => String(row[0]));
+        const yData = values.map(row => parseFloat(row[1]));
+        
+        chart.setOption({
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: xData,
+                axisLabel: { rotate: xData.length > 10 ? 45 : 0, fontSize: 11 }
+            },
+            yAxis: { type: 'value' },
+            series: [{
+                type: 'bar',
+                data: yData,
+                itemStyle: { color: '#4a90d9', borderRadius: [4, 4, 0, 0] }
+            }]
+        }, true);
+    }
+}
+
+// 显示SQL错误
+function showSqlError(message) {
+    document.getElementById('sql-result').innerHTML = 
+        `<div class="sql-placeholder" style="color: #f44336;">${escapeHtml(message)}</div>`;
+    document.getElementById('sql-chart-container').style.display = 'none';
+}
+
+// 导出SQL结果为CSV
+function exportSqlResult() {
+    const table = document.querySelector('.sql-table');
+    if (!table) {
+        alert('没有可导出的数据');
+        return;
+    }
+    
+    let csv = '';
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = Array.from(cells).map(cell => `"${cell.textContent.replace(/"/g, '""')}"`);
+        csv += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `kilter_stats_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+}
+
+// 窗口大小变化时重新调整图表
+window.addEventListener('resize', () => {
+    Object.values(statsCharts).forEach(chart => {
+        if (chart && !chart.isDisposed()) {
+            chart.resize();
+        }
+    });
+});

@@ -6,6 +6,7 @@
     <title>Kilterboard Logbook</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -30,10 +31,142 @@
                 <h1>🧗 Logbook</h1>
                 <div class="header-stats">
                     <span id="total-count">0 条记录</span>
+                    <button class="btn-icon" onclick="showStatsPage()">📊</button>
                     <button class="btn-icon" onclick="showFilterPanel()">🔍</button>
                     <button class="btn-icon" onclick="location.reload()">🔄</button>
                 </div>
             </header>
+
+            <!-- 统计页面 -->
+            <div id="stats-page" class="stats-page">
+                <div class="stats-header">
+                    <h2>📊 统计分析</h2>
+                    <button class="btn-icon" onclick="hideStatsPage()">✕</button>
+                </div>
+                
+                <!-- Tab切换 -->
+                <div class="stats-tabs">
+                    <div class="stats-tab active" data-tab="overview" onclick="switchStatsTab('overview')">概览</div>
+                    <div class="stats-tab" data-tab="grade" onclick="switchStatsTab('grade')">难度分析</div>
+                    <div class="stats-tab" data-tab="trend" onclick="switchStatsTab('trend')">趋势分析</div>
+                    <div class="stats-tab" data-tab="sql" onclick="switchStatsTab('sql')">SQL探索</div>
+                </div>
+                
+                <!-- 概览Tab -->
+                <div id="stats-overview" class="stats-content active">
+                    <!-- KPI卡片 -->
+                    <div class="kpi-cards">
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-total">0</div>
+                            <div class="kpi-label">总攀爬</div>
+                        </div>
+                        <div class="kpi-card ascent">
+                            <div class="kpi-value" id="kpi-ascent">0</div>
+                            <div class="kpi-label">完攀数</div>
+                        </div>
+                        <div class="kpi-card bid">
+                            <div class="kpi-value" id="kpi-bid">0</div>
+                            <div class="kpi-label">尝试数</div>
+                        </div>
+                        <div class="kpi-card flash">
+                            <div class="kpi-value" id="kpi-flash">0</div>
+                            <div class="kpi-label">Flash数</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-max-grade">-</div>
+                            <div class="kpi-label">最高难度</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表区 -->
+                    <div class="stats-charts">
+                        <div class="chart-container">
+                            <h3>完攀/尝试分布</h3>
+                            <div id="chart-overview-pie" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3>角度分布</h3>
+                            <div id="chart-overview-angle" class="chart"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <h3>近6个月活动趋势</h3>
+                            <div id="chart-overview-trend" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 难度分析Tab -->
+                <div id="stats-grade" class="stats-content">
+                    <div class="stats-charts">
+                        <div class="chart-container full-width">
+                            <h3>难度金字塔</h3>
+                            <div id="chart-grade-pyramid" class="chart"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <h3>各难度完攀率</h3>
+                            <div id="chart-grade-rate" class="chart"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <h3>尝试次数分布</h3>
+                            <div id="chart-bid-distribution" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 趋势分析Tab -->
+                <div id="stats-trend" class="stats-content">
+                    <div class="trend-controls">
+                        <div class="trend-granularity">
+                            <button class="granularity-btn active" data-gran="week" onclick="setTrendGranularity('week')">周</button>
+                            <button class="granularity-btn" data-gran="month" onclick="setTrendGranularity('month')">月</button>
+                            <button class="granularity-btn" data-gran="year" onclick="setTrendGranularity('year')">年</button>
+                        </div>
+                    </div>
+                    <div class="stats-charts">
+                        <div class="chart-container full-width">
+                            <h3>攀爬活动热力图</h3>
+                            <div id="chart-trend-heatmap" class="chart"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <h3>攀爬次数与平均难度趋势</h3>
+                            <div id="chart-trend-line" class="chart"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <h3>星期/时段偏好</h3>
+                            <div id="chart-trend-weekday" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SQL探索Tab -->
+                <div id="stats-sql" class="stats-content">
+                    <div class="sql-panel">
+                        <div class="sql-templates">
+                            <label>常用查询模板：</label>
+                            <select id="sql-template" onchange="loadSqlTemplate()">
+                                <option value="">自定义查询...</option>
+                                <option value="grade_distribution">难度分布</option>
+                                <option value="monthly_stats">月度统计</option>
+                                <option value="setter_ranking">定线员榜</option>
+                                <option value="project_list">项目攻坚列表(尝试>5次未完攀)</option>
+                                <option value="repeat_climbs">复攀统计</option>
+                            </select>
+                        </div>
+                        <textarea id="sql-input" class="sql-input" placeholder="输入 SQL 查询语句..."></textarea>
+                        <div class="sql-actions">
+                            <button class="btn-primary" onclick="executeSqlQuery()">▶ 执行查询</button>
+                            <button class="btn-secondary" onclick="exportSqlResult()">📤 导出结果</button>
+                        </div>
+                        <div id="sql-result" class="sql-result">
+                            <div class="sql-placeholder">请输入 SQL 查询或选择模板</div>
+                        </div>
+                        <div class="sql-chart-container" id="sql-chart-container" style="display: none;">
+                            <h4>可视化结果</h4>
+                            <div id="chart-sql-result" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Filter Bar -->
             <div id="filter-bar" class="filter-bar">
