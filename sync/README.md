@@ -7,8 +7,6 @@
 | 文件 | 说明 |
 |------|------|
 | `kilter_sync.py` | 主同步脚本，支持增量同步攀岩记录到本地 SQLite 数据库 |
-| `install_manual.ps1` | 手动安装脚本，配置环境变量 |
-| `install_mitm_cert.ps1` | HTTPS 代理证书安装脚本（用于捕获 API Token） |
 | `API_SPEC.md` | Kilterboard API 规范文档 |
 | `DATABASE_SCHEMA.md` | 数据库结构说明 |
 
@@ -33,15 +31,6 @@ python kilter_sync.py --env --year 2025
 
 # 指定用户名密码
 python kilter_sync.py -u username -p password
-```
-
-### 3. 获取 API Token（可选）
-
-如需捕获自己的 API Token，可以运行 MITM 证书安装脚本：
-
-```powershell
-# 以管理员身份运行 PowerShell
-.\install_mitm_cert.ps1
 ```
 
 ## 数据库输出
