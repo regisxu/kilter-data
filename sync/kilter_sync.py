@@ -14,6 +14,9 @@ import urllib.error
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
 
+# 获取项目根目录（脚本所在目录的父目录）
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class KilterClient:
     """Kilterboard API 客户端"""
@@ -97,7 +100,9 @@ class KilterClient:
 class KilterDatabase:
     """Kilterboard SQLite 数据库管理"""
     
-    def __init__(self, db_path: str = "kilter.db"):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            db_path = os.path.join(PROJECT_ROOT, "kilter.db")
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row
@@ -475,7 +480,9 @@ class KilterSync:
     # 主要关注的资源类型
     SYNC_RESOURCES = ["climbs", "climb_stats", "ascents", "bids"]
     
-    def __init__(self, db_path: str = "kilter.db"):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            db_path = os.path.join(PROJECT_ROOT, "kilter.db")
         self.client = KilterClient()
         self.db = KilterDatabase(db_path)
     
@@ -614,7 +621,7 @@ def main():
     parser = argparse.ArgumentParser(description="Kilterboard 数据同步工具")
     parser.add_argument("--username", "-u", help="用户名", default=None)
     parser.add_argument("--password", "-p", help="密码", default=None)
-    parser.add_argument("--db", "-d", help="数据库路径", default="kilter.db")
+    parser.add_argument("--db", "-d", help="数据库路径", default=None)
     parser.add_argument("--year", "-y", type=int, help="同步指定年份的数据", default=None)
     parser.add_argument("--env", "-e", action="store_true", help="从环境变量读取凭据")
     
