@@ -33,15 +33,7 @@
 使用 `sync/kilter_sync.py` 同步数据到本地 SQLite 数据库（生成 `kilter.db` 文件）。
 
 ### 2. 打开应用
-双击 `index.html` 或在浏览器中打开：
-
-```bash
-# 使用 Python 简单服务器（推荐）
-cd app
-python -m http.server 8080
-
-# 然后访问 http://localhost:8080
-```
+直接双击 `index.html` 在浏览器中打开即可（推荐使用 Chrome/Edge/Safari 等现代浏览器）。
 
 ### 3. 选择数据库
 第一次打开时，点击"选择数据库文件"按钮，选择同步好的 `kilter.db` 文件。

@@ -31,12 +31,7 @@ python kilter_sync.py -u <用户名> -p <密码>
 
 ### 2. 查看记录
 
-```bash
-cd app
-python -m http.server 8080
-```
-
-浏览器访问 `http://localhost:8080`，选择同步好的数据库文件即可。
+双击 `app/index.html` 在浏览器中打开，选择同步好的数据库文件即可。
 
 详见 [app/README.md](app/)
 
