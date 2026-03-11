@@ -10,7 +10,7 @@
 <body>
     <div id="app">
         <!-- 加载界面 -->
-        <div id="loading-screen" class="screen active">
+        <div id="loading-screen" class="screen">
             <div class="loading-content">
                 <h1>🧗 Kilterboard Logbook</h1>
                 <div class="file-input-wrapper">
@@ -18,13 +18,6 @@
                     <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
                         📁 选择数据库文件
                     </button>
-                </div>
-                <div id="loading-stats" class="loading-stats" style="display: none;">
-                    <div class="stat-item">
-                        <span class="stat-number" id="stat-total">0</span>
-                        <span class="stat-label">条记录</span>
-                    </div>
-                    <button class="btn-reload" onclick="location.reload()">🔄 重新加载</button>
                 </div>
                 <div id="loading-status"></div>
             </div>

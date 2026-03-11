@@ -9,14 +9,18 @@ const PAGE_SIZE = 50;             // 每页显示数量
 
 // 初始化
 async function init() {
+    // 文件选择监听
+    document.getElementById('db-file-input').addEventListener('change', handleFileSelect);
+
     // 检查是否有缓存的数据库
     const cachedDb = await loadDbFromCache();
     if (cachedDb) {
+        // 有缓存，直接加载，保持 loading-screen 显示（加载动画）
         await loadDatabase(cachedDb);
+    } else {
+        // 没有缓存，显示 loading-screen 等待用户选择文件
+        document.getElementById('loading-screen').classList.add('active');
     }
-
-    // 文件选择监听
-    document.getElementById('db-file-input').addEventListener('change', handleFileSelect);
 }
 
 // 处理文件选择
@@ -24,19 +28,32 @@ async function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    showLoadingStatus(`正在读取 ${file.name}...`);
-    
-    const arrayBuffer = await file.arrayBuffer();
-    await loadDatabase(arrayBuffer);
-    
-    // 缓存到 IndexedDB
-    await saveDbToCache(arrayBuffer);
+    try {
+        // 隐藏文件选择按钮，显示加载状态
+        document.querySelector('.file-input-wrapper').style.display = 'none';
+        showLoadingStatus(`正在读取 ${file.name}...`);
+        
+        const arrayBuffer = await file.arrayBuffer();
+        await loadDatabase(arrayBuffer);
+        
+        // 缓存到 IndexedDB
+        await saveDbToCache(arrayBuffer);
+    } catch (error) {
+        showLoadingStatus(`读取文件失败: ${error.message}`);
+        console.error('File reading error:', error);
+        document.querySelector('.file-input-wrapper').style.display = 'block';
+    }
 }
 
 // 加载数据库
 async function loadDatabase(arrayBuffer) {
     try {
-        showLoadingStatus('正在加载 SQL.js...');
+        showLoadingStatus('正在初始化 SQL.js...');
+        
+        // 检查 initSqlJs 是否可用
+        if (typeof initSqlJs !== 'function') {
+            throw new Error('SQL.js 库未加载，请检查网络连接');
+        }
         
         // 初始化 SQL.js
         const SQL = await initSqlJs({
@@ -46,21 +63,29 @@ async function loadDatabase(arrayBuffer) {
         showLoadingStatus('正在解析数据库...');
         db = new SQL.Database(new Uint8Array(arrayBuffer));
         
-        // 查询数据
-        await fetchData();
+        showLoadingStatus('正在查询数据...');
+        // 查询数据（同步操作）
+        try {
+            fetchData();
+        } catch (queryError) {
+            console.error('Query error:', queryError);
+            throw new Error(`查询数据失败: ${queryError.message}`);
+        }
         
         // 切换到主界面
         showMainScreen();
         
     } catch (error) {
-        showLoadingStatus(`错误: ${error.message}`);
-        console.error(error);
+        showLoadingStatus(`加载失败: ${error.message}`);
+        console.error('Database loading error:', error);
+        // 显示重新选择按钮
+        document.querySelector('.file-input-wrapper').style.display = 'block';
     }
 }
 
 // 获取数据
 async function fetchData() {
-    showLoadingStatus('正在查询数据...');
+    // 数据查询在后台进行，不显示额外状态
     
     // 查询 ascents（完攀记录）
     const ascentQuery = `
@@ -158,7 +183,12 @@ function parseQueryResult(result) {
 
 // 显示主界面
 function showMainScreen() {
-    document.getElementById('loading-screen').classList.remove('active');
+    // 完全移除 loading-screen
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.remove();
+    }
+    
     document.getElementById('main-screen').classList.add('active');
     
     document.getElementById('total-count').textContent = `${allRecords.length} 条记录`;
@@ -171,17 +201,10 @@ function showLoadingStatus(message) {
     document.getElementById('loading-status').textContent = message;
 }
 
-// 显示加载完成统计
+// 显示加载完成统计并直接进入主界面
 function showLoadingStats(total) {
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('loading-stats').style.display = 'flex';
-    document.querySelector('.file-input-wrapper').style.display = 'none';
-    document.getElementById('loading-status').textContent = '加载完成！';
-    
-    // 3秒后自动进入主界面
-    setTimeout(() => {
-        showMainScreen();
-    }, 1500);
+    // 直接切换到主界面，不显示紫色加载界面
+    showMainScreen();
 }
 
 let lastRenderedDate = null;  // 用于按天分块
@@ -670,8 +693,14 @@ async function saveDbToCache(arrayBuffer) {
         const db = await openIndexedDB();
         const transaction = db.transaction(STORE_NAME, 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
-        await store.put(arrayBuffer, DB_KEY);
-        console.log('Database cached to IndexedDB');
+        return new Promise((resolve, reject) => {
+            const request = store.put(arrayBuffer, DB_KEY);
+            request.onsuccess = () => {
+                console.log('Database cached to IndexedDB');
+                resolve();
+            };
+            request.onerror = () => reject(request.error);
+        });
     } catch (error) {
         console.error('Failed to cache database:', error);
     }
