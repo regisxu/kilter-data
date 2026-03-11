@@ -54,8 +54,4 @@ mitmproxy-ca*
 # Logs
 *.log
 
-# Generated data files
-h5/data.json
 
-# Export scripts
-export_for_h5.py
