@@ -1,241 +1,70 @@
-# Kilterboard 数据同步工具
+# Kilterboard Data
 
-自动抓取和同步 Kilterboard 攀岩数据到本地 SQLite 数据库。
-
-## 功能特性
-
-- 🔐 自动登录获取认证令牌
-- 📊 **增量同步** - 只同步新增/更新的数据，支持断点续传
-- 📈 同步线路统计数据（climb_stats）
-- ✅ 同步完攀记录（ascents）
-- 🔄 同步尝试记录（bids）
-- 💾 本地 SQLite 存储，支持离线分析
-- 📱 支持全量同步（35万+条线路）
+本项目用于同步、存储和分析 Kilterboard 攀岩训练数据。
 
 ## 项目结构
 
 ```
-.
-├── API_SPEC.md           # API 规范文档
-├── DATABASE_SCHEMA.md    # 数据库 Schema 设计
-├── kilter_sync.py        # 核心同步模块
-└── rest/                 # API 示例数据
-    ├── kilter            # API 请求示例
-    └── *.json            # API 响应示例
+├── app/              # 攀岩记录查看和统计分析工具（前端应用）
+├── sync/             # 数据同步脚本和 API 文档
+├── kilter.db         # 本地 SQLite 数据库（同步后生成）
+└── .gitignore        # Git 忽略配置
 ```
+
+| 目录 | 说明 |
+|------|------|
+| [`app/`](app/) | 基于浏览器的攀岩记录查看器，支持统计分析和 SQL 查询 |
+| [`sync/`](sync/) | Python 同步脚本和 API 文档 |
 
 ## 快速开始
 
-### 要求
-
-- Python 3.7+
-- 仅使用 Python 标准库，无需额外依赖
-
-### 首次全量同步
-
-首次同步会下载所有数据（约 35万+ 条线路，可能需要 10-30 分钟）：
+### 1. 数据同步
 
 ```bash
-python kilter_sync.py -u YOUR_USERNAME -p YOUR_PASSWORD
+cd sync
+python kilter_sync.py -u <用户名> -p <密码>
 ```
 
-### 增量同步
+同步完成后在项目根目录生成 `kilter.db` 文件。
 
-后续同步只会下载新增或更新的数据（通常几秒钟完成）：
+详见 [sync/README.md](sync/)
+
+### 2. 查看记录
 
 ```bash
-# 使用相同命令，自动检测增量数据
-python kilter_sync.py -u YOUR_USERNAME -p YOUR_PASSWORD
-
-# 或使用环境变量
-export KILTER_USERNAME=your_username
-export KILTER_PASSWORD=your_password
-python kilter_sync.py
+cd app
+python -m http.server 8080
 ```
 
-### 交互式输入
+浏览器访问 `http://localhost:8080`，选择同步好的数据库文件即可。
 
-```bash
-python kilter_sync.py
-# 然后根据提示输入用户名和密码
+详见 [app/README.md](app/)
+
+## 功能亮点
+
+- **🔄 增量同步** - 只传输新数据，节省时间和流量
+- **📊 统计分析** - 难度金字塔、趋势分析、热力图
+- **🔍 SQL 探索** - 自定义查询和可视化
+- **📱 移动友好** - 响应式设计，支持手机浏览器
+
+## 流程示意
+
+```
+Kilterboard API 
+       ↓
+[sync/kilter_sync.py] 同步数据
+       ↓
+   kilter.db (SQLite)
+       ↓
+[app/index.html] 查看和分析
 ```
 
-## 增量同步原理
+## 开发技术
 
-工具使用 `sync_state` 表记录每个资源的最后同步时间：
-
-| 资源 | 说明 |
-|------|------|
-| `climbs` | 线路信息 |
-| `climb_stats` | 线路统计数据 |
-| `ascents` | 你的完攀记录 |
-| `bids` | 你的尝试记录 |
-
-每次同步时：
-1. 查询上次同步时间
-2. 只请求该时间之后更新的数据
-3. 更新同步时间戳
-
-### 强制全量同步
-
-如果需要重新同步所有数据，删除数据库即可：
-
-```bash
-# Windows
-del kilter.db
-
-# Linux/Mac
-rm kilter.db
-
-# 然后重新运行同步
-python kilter_sync.py -u USERNAME -p PASSWORD
-```
-
-## 数据库说明
-
-数据存储在 SQLite 数据库 `kilter.db` 中：
-
-| 表名 | 说明 | 记录数（参考） |
-|------|------|---------------|
-| `climbs` | 线路信息（名称、角度、岩点布局等） | ~355,000 |
-| `climb_stats` | 线路统计（完攀人数、平均难度/质量等） | ~363,000 |
-| `ascents` | 完攀记录（你成功完成的线路） | ~400+ |
-| `bids` | 尝试记录（你尝试但未完成的线路） | ~200+ |
-| `sync_state` | 同步状态（记录上次同步时间） | 4 |
-
-### 常用查询示例
-
-```sql
--- 查询 2026 年的完攀记录
-SELECT * FROM ascents 
-WHERE climbed_at >= '2026-01-01' AND climbed_at < '2027-01-01'
-ORDER BY climbed_at DESC;
-
--- 查询最常尝试的线路
-SELECT c.name, SUM(b.bid_count) as total_attempts
-FROM bids b
-JOIN climbs c ON b.climb_uuid = c.uuid
-GROUP BY b.climb_uuid
-ORDER BY total_attempts DESC
-LIMIT 10;
-
--- 查询平均难度分布（Fontainebleau/V-grade 等级）
-SELECT 
-    CASE 
-        WHEN difficulty <= 12 THEN '4a-c/V0'
-        WHEN difficulty <= 14 THEN '5a-b/V1'
-        WHEN difficulty <= 15 THEN '5c/V2'
-        WHEN difficulty <= 17 THEN '6a/V3'
-        WHEN difficulty <= 19 THEN '6b/V4'
-        WHEN difficulty <= 21 THEN '6c/V5'
-        WHEN difficulty <= 23 THEN '7a/V6-V7'
-        WHEN difficulty <= 25 THEN '7b-c/V8-V9'
-        WHEN difficulty <= 27 THEN '7c+/V10'
-        WHEN difficulty <= 29 THEN '8a/V11-V12'
-        WHEN difficulty <= 31 THEN '8b/V13-V14'
-        ELSE '8c+/V15+'
-    END as grade_range,
-    COUNT(*) as count
-FROM ascents
-GROUP BY grade_range;
-
--- 查询你的攀爬统计（按年份）
-SELECT 
-    strftime('%Y', climbed_at) as year,
-    COUNT(*) as ascents,
-    AVG(difficulty) as avg_difficulty
-FROM ascents
-WHERE climbed_at IS NOT NULL
-GROUP BY year
-ORDER BY year DESC;
-```
-
-## API 文档
-
-详细的 API 规范请参考 [API_SPEC.md](API_SPEC.md)。
-
-### 主要 API 端点
-
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/sessions` | POST | 登录获取 token |
-| `/sync` | POST | 增量同步数据 |
-| `/climbs/{uuid}/info` | GET | 获取线路详情 |
-| `/climbs/{uuid}/logbook` | GET | 获取用户在该线路的记录 |
-
-## Difficulty 数值与等级对照表
-
-Kilterboard 使用 **Fontainebleau** 等级系统，同时显示对应的 **V-grade**：
-
-| difficulty | Fontainebleau | V-grade | 描述 |
-|-----------|---------------|---------|------|
-| 10 | 4a | V0 | 入门 |
-| 11 | 4b | V0 | 入门 |
-| 12 | 4c | V0 | 入门 |
-| 13 | 5a | V1 | 初级 |
-| 14 | 5b | V1 | 初级 |
-| 15 | 5c | V2 | 初级 |
-| 16 | 6a | V3 | 中级 |
-| 17 | 6a+ | V3 | 中级 |
-| 18 | 6b | V4 | 中级 |
-| 19 | 6b+ | V4 | 中级 |
-| 20 | 6c | V5 | 中高级 |
-| 21 | 6c+ | V5 | 中高级 |
-| 22 | 7a | V6 | 高级 |
-| 23 | 7a+ | V7 | 高级 |
-| 24 | 7b | V8 | 高级 |
-| 25 | 7b+ | V8 | 高级 |
-| 26 | 7c | V9 | 专家 |
-| 27 | 7c+ | V10 | 专家 |
-| 28 | 8a | V11 | 专家 |
-| 29 | 8a+ | V12 | 专家 |
-| 30 | 8b | V13 | 精英 |
-| 31 | 8b+ | V14 | 精英 |
-| 32 | 8c | V15 | 精英 |
-| 33+ | 8c+ | V16+ | 世界级 |
-
-**示例**：
-- difficulty 16 = 6a/V3
-- difficulty 24 = 7b/V8
-- difficulty 32 = 8c/V15 (如 "Big move v15" 线路)
-
-## 数据字段说明
-
-### climbs（线路）
-- `uuid`: 线路唯一标识
-- `name`: 线路名称
-- `angle`: 角度（0-70度）
-- `frames`: 岩点布局编码
-- `setter_username`: 定线员用户名
-
-### climb_stats（线路统计）
-- `climb_uuid`: 线路UUID
-- `angle`: 角度
-- `ascensionist_count`: 完攀人数
-- `difficulty_average`: 平均难度
-- `quality_average`: 平均质量（1-3）
-
-### ascents（完攀记录）
-- `uuid`: 记录唯一标识
-- `climb_uuid`: 线路UUID
-- `difficulty`: 用户评定的难度
-- `quality`: 用户评定的质量
-- `bid_count`: 完成前的尝试次数
-- `climbed_at`: 攀爬时间
-
-### bids（尝试记录）
-- `uuid`: 记录唯一标识
-- `climb_uuid`: 线路UUID
-- `bid_count`: 尝试次数
-- `climbed_at`: 最后尝试时间
-
-## 注意事项
-
-1. **隐私**: 本工具仅供个人备份和分析使用，请勿分享他人数据
-2. **频率限制**: API 可能有频率限制，请勿过于频繁地同步
-3. **首次同步**: 首次同步可能需要较长时间（10-30分钟），请耐心等待
-4. **增量同步**: 日常同步通常只需几秒钟
+- **后端**: Python 3.11+
+- **前端**: 原生 HTML5 + ECharts + sql.js
+- **数据库**: SQLite 3
 
 ## License
 
-MIT License
+MIT

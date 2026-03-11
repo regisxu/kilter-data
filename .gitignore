@@ -43,14 +43,6 @@ env/
 .DS_Store
 Thumbs.db
 
-# mitmproxy certificates
-*.mitmproxy/
-c8750f0d.0
-mitmproxy-ca*
-
-# PowerShell scripts (temporary)
-*.ps1
-
 # Logs
 *.log
 
