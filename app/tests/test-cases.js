@@ -250,7 +250,10 @@ async function loadDbFromCache() {
         const request = store.get('kilterdb');
         
         return new Promise((resolve) => {
-            request.onsuccess = () => resolve(request.result);
+            request.onsuccess = () => {
+                // Return null if result is undefined or null
+                resolve(request.result || null);
+            };
             request.onerror = () => resolve(null);
         });
     } catch (error) {
