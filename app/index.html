@@ -4,168 +4,263 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kilterboard Logbook</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
 <body>
+    <!-- SVG Icons Sprite -->
+    <svg style="display: none;">
+        <defs>
+            <!-- Logo / Mountain -->
+            <symbol id="icon-mountain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 16l2.879-5.879a1 1 0 0 1 1.414 0L15 16"/>
+                <path d="M2 16l4.879-8.879a1 1 0 0 1 1.414 0L12 12"/>
+                <path d="M14 8l3.879-3.879a1 1 0 0 1 1.414 0L22 8"/>
+            </symbol>
+            <!-- File Upload -->
+            <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </symbol>
+            <!-- Stats -->
+            <symbol id="icon-stats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+                <path d="M3 20h18"/>
+            </symbol>
+            <!-- Refresh -->
+            <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23,4 23,10 17,10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </symbol>
+            <!-- Filter -->
+            <symbol id="icon-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3"/>
+            </symbol>
+            <!-- Close -->
+            <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <!-- Check -->
+            <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20,6 9,17 4,12"/>
+            </symbol>
+            <!-- Rotate -->
+            <symbol id="icon-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23,4 23,10 17,10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </symbol>
+            <!-- Thermometer / Angle -->
+            <symbol id="icon-angle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+            </symbol>
+            <!-- User -->
+            <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </symbol>
+            <!-- Calendar -->
+            <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </symbol>
+            <!-- Arrow Right -->
+            <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12,5 19,12 12,19"/>
+            </symbol>
+            <!-- Chevron Left -->
+            <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15,18 9,12 15,6"/>
+            </symbol>
+            <!-- Trending Up -->
+            <symbol id="icon-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+                <polyline points="17,6 23,6 23,12"/>
+            </symbol>
+            <!-- Database -->
+            <symbol id="icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </symbol>
+        </defs>
+    </svg>
+
     <div id="app">
-        <!-- 加载界面 -->
+        <!-- Loading Screen -->
         <div id="loading-screen" class="screen">
             <div class="loading-content">
-                <h1>🧗 Kilterboard</h1>
-                <p>记录每一次攀岩的成长</p>
+                <div class="logo-icon">
+                    <svg><use href="#icon-mountain"/></svg>
+                </div>
+                <h1>Kilterboard</h1>
+                <p>Track your climbing journey</p>
                 <div class="file-input-wrapper">
                     <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" />
                     <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
-                        📁 选择数据库文件
+                        <svg width="20" height="20"><use href="#icon-upload"/></svg>
+                        Select Database
                     </button>
                 </div>
-                <p class="hint">支持 .db, .sqlite, .sqlite3 格式</p>
+                <p class="hint">Supports .db, .sqlite, .sqlite3 files</p>
                 <div id="loading-status"></div>
             </div>
         </div>
 
-        <!-- 主界面 -->
+        <!-- Main Screen -->
         <div id="main-screen" class="screen">
-            <!-- 头部 -->
+            <!-- Header -->
             <header class="app-header">
-                <h1>🧗 Logbook</h1>
+                <h1>
+                    <svg><use href="#icon-mountain"/></svg>
+                    Logbook
+                </h1>
                 <div class="header-stats">
-                    <span id="total-count">0 条记录</span>
-                    <button class="btn-icon" onclick="showStatsPage()" title="统计分析">📊</button>
-                    <button class="btn-icon" onclick="reloadDatabase()" title="重新加载">🔄</button>
+                    <span id="total-count">0 records</span>
+                    <button class="btn-icon" onclick="showStatsPage()" title="Statistics">
+                        <svg><use href="#icon-stats"/></svg>
+                    </button>
+                    <button class="btn-icon" onclick="reloadDatabase()" title="Reload">
+                        <svg><use href="#icon-refresh"/></svg>
+                    </button>
                 </div>
             </header>
 
-            <!-- 统计页面 -->
+            <!-- Stats Page -->
             <div id="stats-page" class="stats-page">
                 <div class="stats-header">
-                    <h2>📊 统计分析</h2>
-                    <button class="btn-icon" onclick="hideStatsPage()">✕</button>
+                    <h2>
+                        <svg><use href="#icon-stats"/></svg>
+                        Statistics
+                    </h2>
+                    <button class="btn-icon" onclick="hideStatsPage()">
+                        <svg><use href="#icon-close"/></svg>
+                    </button>
                 </div>
                 
-                <!-- Tab切换 -->
+                <!-- Tab Switching -->
                 <div class="stats-tabs">
-                    <div class="stats-tab active" data-tab="overview" onclick="switchStatsTab('overview')">概览</div>
-                    <div class="stats-tab" data-tab="grade" onclick="switchStatsTab('grade')">难度分析</div>
-                    <div class="stats-tab" data-tab="trend" onclick="switchStatsTab('trend')">趋势分析</div>
-                    <div class="stats-tab" data-tab="sql" onclick="switchStatsTab('sql')">SQL探索</div>
+                    <div class="stats-tab active" data-tab="overview" onclick="switchStatsTab('overview')">Overview</div>
+                    <div class="stats-tab" data-tab="grade" onclick="switchStatsTab('grade')">Grade</div>
+                    <div class="stats-tab" data-tab="trend" onclick="switchStatsTab('trend')">Trend</div>
+                    <div class="stats-tab" data-tab="sql" onclick="switchStatsTab('sql')">SQL</div>
                 </div>
                 
-                <!-- 概览Tab -->
+                <!-- Overview Tab -->
                 <div id="stats-overview" class="stats-content active">
-                    <!-- KPI卡片 -->
                     <div class="kpi-cards">
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-total">0</div>
-                            <div class="kpi-label">总攀爬</div>
+                            <div class="kpi-label">Total</div>
                         </div>
                         <div class="kpi-card ascent">
                             <div class="kpi-value" id="kpi-ascent">0</div>
-                            <div class="kpi-label">完攀数</div>
+                            <div class="kpi-label">Ascents</div>
                         </div>
                         <div class="kpi-card bid">
                             <div class="kpi-value" id="kpi-bid">0</div>
-                            <div class="kpi-label">尝试数</div>
+                            <div class="kpi-label">Attempts</div>
                         </div>
                         <div class="kpi-card flash">
                             <div class="kpi-value" id="kpi-flash">0</div>
-                            <div class="kpi-label">Flash数</div>
+                            <div class="kpi-label">Flash</div>
                         </div>
                         <div class="kpi-card">
                             <div class="kpi-value" id="kpi-max-grade">-</div>
-                            <div class="kpi-label">最高难度</div>
+                            <div class="kpi-label">Best</div>
                         </div>
                     </div>
                     
-                    <!-- 图表区 -->
                     <div class="stats-charts">
                         <div class="chart-container">
-                            <h3>完攀/尝试分布</h3>
+                            <h3>Ascents vs Attempts</h3>
                             <div id="chart-overview-pie" class="chart"></div>
                         </div>
                         <div class="chart-container">
-                            <h3>角度分布</h3>
+                            <h3>Angle Distribution</h3>
                             <div id="chart-overview-angle" class="chart"></div>
                         </div>
                         <div class="chart-container full-width">
-                            <h3>近6个月活动趋势</h3>
+                            <h3>6 Month Activity</h3>
                             <div id="chart-overview-trend" class="chart"></div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 难度分析Tab -->
+                <!-- Grade Analysis Tab -->
                 <div id="stats-grade" class="stats-content">
                     <div class="stats-charts">
                         <div class="chart-container full-width">
-                            <h3>难度金字塔</h3>
+                            <h3>Grade Pyramid</h3>
                             <div id="chart-grade-pyramid" class="chart"></div>
                         </div>
                         <div class="chart-container full-width">
-                            <h3>各难度完攀率</h3>
+                            <h3>Completion Rate by Grade</h3>
                             <div id="chart-grade-rate" class="chart"></div>
                         </div>
                         <div class="chart-container full-width">
-                            <h3>尝试次数分布</h3>
+                            <h3>Attempt Distribution</h3>
                             <div id="chart-bid-distribution" class="chart"></div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 趋势分析Tab -->
+                <!-- Trend Analysis Tab -->
                 <div id="stats-trend" class="stats-content">
                     <div class="trend-controls">
                         <div class="trend-granularity">
-                            <button class="granularity-btn active" data-gran="week" onclick="setTrendGranularity('week')">周</button>
-                            <button class="granularity-btn" data-gran="month" onclick="setTrendGranularity('month')">月</button>
-                            <button class="granularity-btn" data-gran="year" onclick="setTrendGranularity('year')">年</button>
+                            <button class="granularity-btn active" data-gran="week" onclick="setTrendGranularity('week')">Week</button>
+                            <button class="granularity-btn" data-gran="month" onclick="setTrendGranularity('month')">Month</button>
+                            <button class="granularity-btn" data-gran="year" onclick="setTrendGranularity('year')">Year</button>
                         </div>
                     </div>
                     <div class="stats-charts">
                         <div class="chart-container full-width">
-                            <h3>攀爬活动热力图</h3>
+                            <h3>Activity Heatmap</h3>
                             <div id="chart-trend-heatmap" class="chart"></div>
                         </div>
                         <div class="chart-container full-width">
-                            <h3>攀爬次数与平均难度趋势</h3>
+                            <h3>Climbs & Avg Grade Trend</h3>
                             <div id="chart-trend-line" class="chart"></div>
                         </div>
                         <div class="chart-container full-width">
-                            <h3>星期/时段偏好</h3>
+                            <h3>Weekday Preference</h3>
                             <div id="chart-trend-weekday" class="chart"></div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- SQL探索Tab -->
+                <!-- SQL Explorer Tab -->
                 <div id="stats-sql" class="stats-content">
                     <div class="sql-panel">
                         <div class="sql-templates">
-                            <label>常用查询模板：</label>
+                            <label>Templates:</label>
                             <select id="sql-template" onchange="loadSqlTemplate()">
-                                <option value="">自定义查询...</option>
-                                <option value="grade_distribution">难度分布</option>
-                                <option value="monthly_stats">月度统计</option>
-                                <option value="setter_ranking">定线员榜</option>
-                                <option value="project_list">项目攻坚列表(尝试>5次未完攀)</option>
-                                <option value="repeat_climbs">复攀统计</option>
+                                <option value="">Custom query...</option>
+                                <option value="grade_distribution">Grade Distribution</option>
+                                <option value="monthly_stats">Monthly Stats</option>
+                                <option value="setter_ranking">Setter Ranking</option>
+                                <option value="project_list">Projects (>5 attempts)</option>
+                                <option value="repeat_climbs">Repeat Climbs</option>
                             </select>
                         </div>
-                        <textarea id="sql-input" class="sql-input" placeholder="输入 SQL 查询语句..."></textarea>
+                        <textarea id="sql-input" class="sql-input" placeholder="Enter SQL query..."></textarea>
                         <div class="sql-actions">
-                            <button class="btn-primary" onclick="executeSqlQuery()">▶ 执行查询</button>
-                            <button class="btn-secondary" onclick="exportSqlResult()">📤 导出结果</button>
+                            <button class="btn-primary" onclick="executeSqlQuery()">Run Query</button>
+                            <button class="btn-secondary" onclick="exportSqlResult()">Export</button>
                         </div>
                         <div id="sql-result" class="sql-result">
-                            <div class="sql-placeholder">请输入 SQL 查询或选择模板</div>
+                            <div class="sql-placeholder">Enter SQL or select a template</div>
                         </div>
                         <div class="sql-chart-container" id="sql-chart-container" style="display: none;">
-                            <h4>可视化结果</h4>
+                            <h4>Visualization</h4>
                             <div id="chart-sql-result" class="chart"></div>
                         </div>
                     </div>
@@ -175,62 +270,64 @@
             <!-- Filter Bar -->
             <div id="filter-bar" class="filter-bar">
                 <div class="filter-bar-item" onclick="showFilterPanel()">
-                    <span class="filter-label">时间</span>
-                    <span id="filter-bar-time" class="filter-value">全部</span>
+                    <span class="filter-label">Time</span>
+                    <span id="filter-bar-time" class="filter-value">All</span>
                 </div>
                 <div class="filter-bar-item" onclick="showFilterPanel()">
-                    <span class="filter-label">类型</span>
-                    <span id="filter-bar-type" class="filter-value">全部</span>
+                    <span class="filter-label">Type</span>
+                    <span id="filter-bar-type" class="filter-value">All</span>
                 </div>
                 <div class="filter-bar-item" onclick="showFilterPanel()">
-                    <span class="filter-label">角度</span>
-                    <span id="filter-bar-angle" class="filter-value">全部</span>
+                    <span class="filter-label">Angle</span>
+                    <span id="filter-bar-angle" class="filter-value">All</span>
                 </div>
                 <div class="filter-bar-item" onclick="showFilterPanel()">
-                    <span class="filter-label">难度</span>
-                    <span id="filter-bar-diff" class="filter-value">全部</span>
+                    <span class="filter-label">Grade</span>
+                    <span id="filter-bar-diff" class="filter-value">All</span>
                 </div>
-                <div class="filter-bar-item" onclick="showFilterPanel()">
-                    <span class="filter-label">线路</span>
-                    <span id="filter-bar-name" class="filter-value">全部</span>
-                </div>
-                <button class="btn-icon filter-btn" onclick="showFilterPanel()">🔍</button>
+                <button class="btn-icon filter-btn" onclick="showFilterPanel()">
+                    <svg><use href="#icon-filter"/></svg>
+                </button>
             </div>
 
-            <!-- 筛选面板 -->
+            <!-- Filter Panel -->
             <div id="filter-panel" class="filter-panel">
+                <button class="btn-close" onclick="hideFilterPanel()">
+                    <svg><use href="#icon-close"/></svg>
+                </button>
+                
                 <div class="filter-group">
-                    <label>时间范围</label>
+                    <label>Time Range</label>
                     <select id="filter-time" onchange="onTimeFilterChange()">
-                        <option value="all">全部时间</option>
-                        <option value="7">最近7天</option>
-                        <option value="30">最近30天</option>
-                        <option value="90">最近90天</option>
-                        <option value="365">最近一年</option>
-                        <option value="2026">2026年</option>
-                        <option value="2025">2025年</option>
-                        <option value="2024">2024年</option>
-                        <option value="2023">2023年</option>
-                        <option value="2022">2022年</option>
-                        <option value="custom">自定义...</option>
+                        <option value="all">All Time</option>
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">Last Year</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="custom">Custom...</option>
                     </select>
                     <div id="custom-date-range" class="custom-date-range" style="display: none;">
                         <input type="date" id="date-start" onchange="applyFilters()">
-                        <span>至</span>
+                        <span>to</span>
                         <input type="date" id="date-end" onchange="applyFilters()">
                     </div>
                 </div>
 
                 <div class="filter-group">
-                    <label>记录类型</label>
+                    <label>Record Type</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" id="filter-ascent" checked onchange="applyFilters()"> ✅ 完攀 (Ascent)</label>
-                        <label><input type="checkbox" id="filter-bid" checked onchange="applyFilters()"> 🔄 尝试 (Bid)</label>
+                        <label><input type="checkbox" id="filter-ascent" checked onchange="applyFilters()"> Ascents</label>
+                        <label><input type="checkbox" id="filter-bid" checked onchange="applyFilters()"> Attempts</label>
                     </div>
                 </div>
 
                 <div class="filter-group">
-                    <label>角度 (0°-70°)</label>
+                    <label>Angle (0°-70°)</label>
                     <div class="checkbox-group angles">
                         <label><input type="checkbox" value="0" checked onchange="applyFilters()"> 0°</label>
                         <label><input type="checkbox" value="5" checked onchange="applyFilters()"> 5°</label>
@@ -251,11 +348,11 @@
                 </div>
 
                 <div class="filter-group">
-                    <label>难度范围</label>
+                    <label>Grade Range</label>
                     <div class="diff-range-slider">
                         <div class="diff-range-labels">
-                            <span id="diff-min-label">4a/V0</span>
-                            <span id="diff-max-label">8c+/V16+</span>
+                            <span id="diff-min-label">V0</span>
+                            <span id="diff-max-label">V16+</span>
                         </div>
                         <div class="range-inputs">
                             <input type="range" id="diff-min" min="10" max="33" value="10" oninput="onDiffChange()">
@@ -265,31 +362,32 @@
                 </div>
 
                 <div class="filter-group">
-                    <label>搜索线路</label>
-                    <input type="text" id="filter-search" placeholder="输入线路名称..." oninput="applyFilters()">
+                    <label>Search</label>
+                    <input type="text" id="filter-search" placeholder="Climb name..." oninput="applyFilters()">
                 </div>
 
-                <button class="btn-secondary" onclick="resetFilters()">重置筛选</button>
-                <button class="btn-close" onclick="hideFilterPanel()">✕</button>
+                <button class="btn-secondary" onclick="resetFilters()">Reset Filters</button>
             </div>
 
-            <!-- 记录列表 -->
+            <!-- Record List -->
             <div id="record-list" class="record-list">
-                <!-- 动态生成 -->
+                <!-- Dynamic content -->
             </div>
 
-            <!-- 加载更多 -->
+            <!-- Load More -->
             <div id="load-more" class="load-more" onclick="loadMore()">
-                <span>加载更多...</span>
+                <span>Load More</span>
             </div>
         </div>
 
-        <!-- 详情弹窗 -->
+        <!-- Detail Modal -->
         <div id="detail-modal" class="modal" onclick="closeModal(event)">
             <div class="modal-content" onclick="event.stopPropagation()">
-                <button class="modal-close" onclick="closeModal()">✕</button>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg><use href="#icon-close"/></svg>
+                </button>
                 <div id="modal-body">
-                    <!-- 动态生成 -->
+                    <!-- Dynamic content -->
                 </div>
             </div>
         </div>

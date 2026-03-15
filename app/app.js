@@ -191,7 +191,7 @@ function showMainScreen() {
     
     document.getElementById('main-screen').classList.add('active');
     
-    document.getElementById('total-count').textContent = `${allRecords.length} 条记录`;
+    document.getElementById('total-count').textContent = `${allRecords.length} records`;
     
     renderList();
 }
@@ -269,24 +269,34 @@ function createDateDivider(dateStr) {
 // 创建记录卡片
 function createRecordCard(record) {
     const div = document.createElement('div');
-    // 根据类型设置不同的背景色
     div.className = `record-card ${record.type}`;
     div.onclick = () => showDetail(record);
     
     const time = formatTime(record.climbed_at);
     const difficulty = record.difficulty || record.stats.difficulty_average || '-';
     const difficultyLabel = getDifficultyLabel(difficulty);
+    const isAscent = record.type === 'ascent';
     
     div.innerHTML = `
         <div class="card-header">
             <span class="time">${time}</span>
+            <span class="status-badge ${record.type}">
+                <svg width="12" height="12"><use href="#icon-${isAscent ? 'check' : 'rotate'}"/></svg>
+                ${isAscent ? 'Sent' : 'Attempt'}
+            </span>
         </div>
         <div class="card-body">
             <h3 class="climb-name">${escapeHtml(record.climb_name || 'Unknown')}</h3>
             <div class="card-meta">
-                <span class="meta-item">📐 ${record.angle}°</span>
+                <span class="meta-item">
+                    <svg><use href="#icon-angle"/></svg>
+                    ${record.angle}°
+                </span>
                 <span class="meta-item grade">${difficultyLabel}</span>
-                <span class="meta-item">🔄 ${record.bid_count || 0} 次</span>
+                <span class="meta-item">
+                    <svg><use href="#icon-rotate"/></svg>
+                    ${record.bid_count || 0}
+                </span>
             </div>
         </div>
     `;
@@ -318,48 +328,57 @@ function showDetail(record) {
     const ascentCount = userClimbs.filter(c => c.type === 'ascent').length;
     
     body.innerHTML = `
-        <div class="detail-header compact">
+        <div class="detail-header">
             <h2>${escapeHtml(record.climb_name || 'Unknown')}</h2>
             <div class="detail-meta">
-                <span class="meta-tag">📐 ${record.angle}°</span>
-                <span class="meta-tag">👤 ${escapeHtml(setter)}</span>
+                <span class="meta-tag">
+                    <svg><use href="#icon-angle"/></svg>
+                    ${record.angle}°
+                </span>
+                <span class="meta-tag">
+                    <svg><use href="#icon-user"/></svg>
+                    ${escapeHtml(setter)}
+                </span>
             </div>
         </div>
         
-        <div class="detail-section compact">
-            <div class="detail-grid compact">
+        <div class="detail-section">
+            <div class="detail-grid">
                 <div class="detail-item">
-                    <label>难度</label>
+                    <label>Grade</label>
                     <value class="grade">${getDifficultyLabel(record.stats.difficulty_average || record.difficulty)}</value>
                 </div>
                 <div class="detail-item">
-                    <label>质量</label>
+                    <label>Quality</label>
                     <value>${record.stats.quality_average ? '⭐'.repeat(Math.round(record.stats.quality_average)) : '-'}</value>
                 </div>
                 <div class="detail-item">
-                    <label>完攀人数</label>
+                    <label>Ascensionists</label>
                     <value>${record.stats.ascensionist_count || '-'}</value>
                 </div>
                 <div class="detail-item">
-                    <label>我的完成</label>
-                    <value>${ascentCount} 次</value>
+                    <label>My Sends</label>
+                    <value>${ascentCount}</value>
                 </div>
             </div>
         </div>
         
         <div class="detail-section">
-            <h3>📝 我的攀爬记录 (${userClimbs.length} 条)</h3>
+            <h3>My Sessions (${userClimbs.length})</h3>
             <div class="climb-history">
                 ${userClimbs.map(climb => `
                     <div class="history-item ${climb.type}">
                         <div class="history-main">
                             <span class="history-time">${formatDateTime(climb.climbed_at)}</span>
-                            <span class="history-type">${climb.type === 'ascent' ? '✅ 完攀' : '🔄 尝试'}</span>
+                            <span class="history-type">
+                                <svg width="12" height="12"><use href="#icon-${climb.type === 'ascent' ? 'check' : 'rotate'}"/></svg>
+                                ${climb.type === 'ascent' ? 'Sent' : 'Attempt'}
+                            </span>
                         </div>
                         <div class="history-detail">
-                            <span>难度: ${getDifficultyLabel(climb.difficulty) || '-'}</span>
-                            <span>质量: ${climb.quality ? '⭐'.repeat(climb.quality) : '-'}</span>
-                            <span>尝试: ${climb.bid_count || 0} 次</span>
+                            <span>Grade: ${getDifficultyLabel(climb.difficulty) || '-'}</span>
+                            <span>Quality: ${climb.quality ? '⭐'.repeat(climb.quality) : '-'}</span>
+                            <span>Attempts: ${climb.bid_count || 0}</span>
                         </div>
                         ${climb.comment ? `<div class="history-comment">${escapeHtml(climb.comment)}</div>` : ''}
                     </div>
@@ -368,8 +387,8 @@ function showDetail(record) {
         </div>
         
         ${record.description ? `
-        <div class="detail-section compact">
-            <h3>📖 线路说明</h3>
+        <div class="detail-section">
+            <h3>Description</h3>
             <p class="description">${escapeHtml(record.description)}</p>
         </div>
         ` : ''}
@@ -518,19 +537,19 @@ function updateFilterBar() {
     const dateStart = document.getElementById('date-start').value;
     const dateEnd = document.getElementById('date-end').value;
     
-    // 时间
-    let timeText = '全部';
+    // Time
+    let timeText = 'All';
     if (timeFilter === 'custom' && (dateStart || dateEnd)) {
         const start = dateStart ? dateStart.slice(5) : '...';
         const end = dateEnd ? dateEnd.slice(5) : '...';
         timeText = `${start}-${end}`;
     } else {
         const timeMap = {
-            'all': '全部',
-            '7': '7天',
-            '30': '30天',
-            '90': '90天',
-            '365': '1年',
+            'all': 'All',
+            '7': '7d',
+            '30': '30d',
+            '90': '90d',
+            '365': '1y',
             '2026': '2026',
             '2025': '2025',
             '2024': '2024',
@@ -541,44 +560,43 @@ function updateFilterBar() {
     }
     document.getElementById('filter-bar-time').textContent = timeText;
     
-    // 类型
-    let typeText = '全部';
-    if (showAscent && !showBid) typeText = '完攀';
-    else if (!showAscent && showBid) typeText = '尝试';
-    else if (!showAscent && !showBid) typeText = '无';
+    // Type
+    let typeText = 'All';
+    if (showAscent && !showBid) typeText = 'Sent';
+    else if (!showAscent && showBid) typeText = 'Attempts';
+    else if (!showAscent && !showBid) typeText = 'None';
     document.getElementById('filter-bar-type').textContent = typeText;
     
-    // 角度 (0-70, 每5度一个，共15个)
+    // Angle
     const angleCheckboxes = document.querySelectorAll('.angles input[type="checkbox"]:checked');
     const selectedAngles = Array.from(angleCheckboxes).map(cb => parseInt(cb.value));
-    let angleText = '全部';
+    let angleText = 'All';
     if (selectedAngles.length === 1) angleText = selectedAngles[0] + '°';
     else if (selectedAngles.length > 1 && selectedAngles.length < 15) {
-        // 显示范围，如 "30°-50°"
         const min = Math.min(...selectedAngles);
         const max = Math.max(...selectedAngles);
         if (max - min === (selectedAngles.length - 1) * 5) {
             angleText = min + '°-' + max + '°';
         } else {
-            angleText = selectedAngles.length + '个';
+            angleText = selectedAngles.length + '';
         }
-    } else if (selectedAngles.length === 0) angleText = '无';
+    } else if (selectedAngles.length === 0) angleText = 'None';
     document.getElementById('filter-bar-angle').textContent = angleText;
     
-    // 难度
-    let diffText = '全部';
+    // Grade
+    let diffText = 'All';
     const minVal = parseInt(diffMin) || 10;
     const maxVal = parseInt(diffMax) || 33;
     if (minVal > 10 || maxVal < 33) {
         const minLabel = getDifficultyLabel(minVal);
         const maxLabel = getDifficultyLabel(maxVal);
-        diffText = minLabel.split('/')[0] + '-' + maxLabel.split('/')[0];
+        diffText = minLabel.split('/')[1] + '-' + maxLabel.split('/')[1];
     }
     document.getElementById('filter-bar-diff').textContent = diffText;
     
-    // 线路名
+    // Search
     const searchText = document.getElementById('filter-search').value.trim();
-    let nameText = '全部';
+    let nameText = 'All';
     if (searchText) {
         nameText = searchText.length > 6 ? searchText.slice(0, 6) + '...' : searchText;
     }
@@ -957,8 +975,8 @@ function renderOverviewCharts() {
             label: { show: false },
             emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' }},
             data: [
-                { value: statsData.ascents.length, name: '完攀', itemStyle: { color: '#7A9E7E' }},
-                { value: statsData.bids.length, name: '尝试', itemStyle: { color: '#D4734C' }}
+                { value: statsData.ascents.length, name: 'Ascents', itemStyle: { color: '#10B981' }},
+                { value: statsData.bids.length, name: 'Attempts', itemStyle: { color: '#F97316' }}
             ]
         }]
     });
@@ -1046,7 +1064,7 @@ function renderGradeCharts() {
                 stack: 'total',
                 label: { show: true, position: 'inside' },
                 data: sortedGrades.map(g => statsData.gradeDist.ascent[g] || 0),
-                itemStyle: { color: '#7A9E7E' }
+                itemStyle: { color: '#10B981' }
             },
             {
                 name: '尝试',
@@ -1054,7 +1072,7 @@ function renderGradeCharts() {
                 stack: 'total',
                 label: { show: true, position: 'inside', formatter: v => v.value > 0 ? '-' + v.value : '' },
                 data: sortedGrades.map(g => -(statsData.gradeDist.bid[g] || 0)),
-                itemStyle: { color: '#D4734C' }
+                itemStyle: { color: '#F97316' }
             }
         ]
     });
@@ -1100,8 +1118,8 @@ function renderGradeCharts() {
             type: 'bar',
             itemStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: '#E6C875' },
-                    { offset: 1, color: '#D4734C' }
+                    { offset: 0, color: '#F59E0B' },
+                    { offset: 1, color: '#F97316' }
                 ]),
                 borderRadius: [8, 8, 0, 0]
             }
@@ -1202,7 +1220,7 @@ function renderTrendCharts() {
             orient: 'horizontal',
             left: 'center',
             bottom: 0,
-            inRange: { color: ['#F5F3EF', '#E8A88C', '#D4734C', '#7A9E7E', '#5D7A60'] }
+            inRange: { color: ['#F1F5F9', '#FDBA74', '#F97316', '#10B981', '#059669'] }
         },
         calendar: {
             top: 30,
@@ -1243,7 +1261,7 @@ function renderTrendCharts() {
                 name: '攀爬次数',
                 type: 'bar',
                 data: sortedKeys.map(k => timeData[k].count),
-                itemStyle: { color: '#D4734C', borderRadius: [8, 8, 0, 0] }
+                itemStyle: { color: '#6366F1', borderRadius: [8, 8, 0, 0] }
             },
             {
                 name: '平均难度',
@@ -1256,8 +1274,8 @@ function renderTrendCharts() {
                 smooth: true,
                 symbol: 'circle',
                 symbolSize: 8,
-                lineStyle: { color: '#E6C875', width: 3 },
-                itemStyle: { color: '#E6C875' }
+                lineStyle: { color: '#F59E0B', width: 3 },
+                itemStyle: { color: '#F59E0B' }
             }
         ]
     });
