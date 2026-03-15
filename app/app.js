@@ -957,8 +957,8 @@ function renderOverviewCharts() {
             label: { show: false },
             emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' }},
             data: [
-                { value: statsData.ascents.length, name: '完攀', itemStyle: { color: '#4caf50' }},
-                { value: statsData.bids.length, name: '尝试', itemStyle: { color: '#ff9800' }}
+                { value: statsData.ascents.length, name: '完攀', itemStyle: { color: '#7A9E7E' }},
+                { value: statsData.bids.length, name: '尝试', itemStyle: { color: '#D4734C' }}
             ]
         }]
     });
@@ -1046,7 +1046,7 @@ function renderGradeCharts() {
                 stack: 'total',
                 label: { show: true, position: 'inside' },
                 data: sortedGrades.map(g => statsData.gradeDist.ascent[g] || 0),
-                itemStyle: { color: '#4caf50' }
+                itemStyle: { color: '#7A9E7E' }
             },
             {
                 name: '尝试',
@@ -1054,7 +1054,7 @@ function renderGradeCharts() {
                 stack: 'total',
                 label: { show: true, position: 'inside', formatter: v => v.value > 0 ? '-' + v.value : '' },
                 data: sortedGrades.map(g => -(statsData.gradeDist.bid[g] || 0)),
-                itemStyle: { color: '#ff9800' }
+                itemStyle: { color: '#D4734C' }
             }
         ]
     });
@@ -1100,10 +1100,10 @@ function renderGradeCharts() {
             type: 'bar',
             itemStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: '#4a90d9' },
-                    { offset: 1, color: '#357abd' }
+                    { offset: 0, color: '#E6C875' },
+                    { offset: 1, color: '#D4734C' }
                 ]),
-                borderRadius: [4, 4, 0, 0]
+                borderRadius: [8, 8, 0, 0]
             }
         }]
     });
@@ -1202,7 +1202,7 @@ function renderTrendCharts() {
             orient: 'horizontal',
             left: 'center',
             bottom: 0,
-            inRange: { color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'] }
+            inRange: { color: ['#F5F3EF', '#E8A88C', '#D4734C', '#7A9E7E', '#5D7A60'] }
         },
         calendar: {
             top: 30,
@@ -1243,7 +1243,7 @@ function renderTrendCharts() {
                 name: '攀爬次数',
                 type: 'bar',
                 data: sortedKeys.map(k => timeData[k].count),
-                itemStyle: { color: '#4a90d9', borderRadius: [4, 4, 0, 0] }
+                itemStyle: { color: '#D4734C', borderRadius: [8, 8, 0, 0] }
             },
             {
                 name: '平均难度',
@@ -1256,8 +1256,8 @@ function renderTrendCharts() {
                 smooth: true,
                 symbol: 'circle',
                 symbolSize: 8,
-                lineStyle: { color: '#ff9800', width: 3 },
-                itemStyle: { color: '#ff9800' }
+                lineStyle: { color: '#E6C875', width: 3 },
+                itemStyle: { color: '#E6C875' }
             }
         ]
     });

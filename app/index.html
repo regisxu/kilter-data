@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kilterboard Logbook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
@@ -13,13 +16,15 @@
         <!-- 加载界面 -->
         <div id="loading-screen" class="screen">
             <div class="loading-content">
-                <h1>🧗 Kilterboard Logbook</h1>
+                <h1>🧗 Kilterboard</h1>
+                <p>记录每一次攀岩的成长</p>
                 <div class="file-input-wrapper">
                     <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" />
                     <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
                         📁 选择数据库文件
                     </button>
                 </div>
+                <p class="hint">支持 .db, .sqlite, .sqlite3 格式</p>
                 <div id="loading-status"></div>
             </div>
         </div>
@@ -31,8 +36,8 @@
                 <h1>🧗 Logbook</h1>
                 <div class="header-stats">
                     <span id="total-count">0 条记录</span>
-                    <button class="btn-icon" onclick="showStatsPage()">📊</button>
-                    <button class="btn-icon" onclick="reloadDatabase()">🔄</button>
+                    <button class="btn-icon" onclick="showStatsPage()" title="统计分析">📊</button>
+                    <button class="btn-icon" onclick="reloadDatabase()" title="重新加载">🔄</button>
                 </div>
             </header>
 
