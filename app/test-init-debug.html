@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Init Flow Debug</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        .log { margin: 5px 0; padding: 8px; background: #f3f4f6; border-radius: 4px; font-family: monospace; font-size: 12px; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .success { background: #d1fae5; color: #065f46; }
+        .screen { display: none; padding: 40px; text-align: center; }
+        .screen.active { display: block; }
+        #loading-screen { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); color: white; min-height: 100vh; }
+        #main-screen { background: white; min-height: 100vh; }
+    </style>
+</head>
+<body>
+    <h1>Init Flow Test</h1>
+    <div id="logs"></div>
+    
+    <div id="app">
+        <div id="loading-screen" class="screen">
+            <h2>Loading Screen</h2>
+            <p>Should auto-skip if cache exists</p>
+        </div>
+        <div id="main-screen" class="screen">
+            <h2>Main Screen</h2>
+            <p>Data loaded from cache</p>
+        </div>
+    </div>
+
+<script>
+const logs = [];
+
+function log(msg, type = 'info') {
+    const time = new Date().toLocaleTimeString();
+    const entry = `[${time}] ${msg}`;
+    logs.push(entry);
+    
+    const div = document.createElement('div');
+    div.className = `log ${type}`;
+    div.textContent = entry;
+    document.getElementById('logs').appendChild(div);
+    console.log(entry);
+}
+
+// Mock IndexedDB
+const DB_NAME = 'KilterLogbookDB';
+const STORE_NAME = 'database';
+const DB_KEY = 'kilterdb';
+
+async function openIndexedDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            db.createObjectStore(STORE_NAME);
+            log('IndexedDB upgrade needed - created object store', 'success');
+        };
+    });
+}
+
+async function saveDbToCache(arrayBuffer) {
+    const db = await openIndexedDB();
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    return new Promise((resolve, reject) => {
+        const request = store.put(arrayBuffer, DB_KEY);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function loadDbFromCache() {
+    try {
+        log('loadDbFromCache: starting...');
+        const db = await openIndexedDB();
+        const transaction = db.transaction(STORE_NAME, 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(DB_KEY);
+        
+        return new Promise((resolve) => {
+            request.onsuccess = () => {
+                const result = request.result;
+                log(`loadDbFromCache: ${result ? 'found data (' + result.byteLength + ' bytes)' : 'no data'}`, result ? 'success' : 'info');
+                resolve(result);
+            };
+            request.onerror = () => {
+                log('loadDbFromCache: error', 'error');
+                resolve(null);
+            };
+        });
+    } catch (error) {
+        log(`loadDbFromCache: exception - ${error.message}`, 'error');
+        return null;
+    }
+}
+
+function showMainScreen() {
+    log('showMainScreen: called');
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.remove();
+        log('showMainScreen: removed loading-screen');
+    }
+    
+    document.getElementById('main-screen').classList.add('active');
+    log('showMainScreen: activated main-screen', 'success');
+}
+
+async function loadDatabase(arrayBuffer) {
+    log('loadDatabase: starting...');
+    try {
+        // Simulate loading delay
+        await new Promise(r => setTimeout(r, 500));
+        
+        log('loadDatabase: data loaded successfully', 'success');
+        showMainScreen();
+        return true;
+    } catch (error) {
+        log(`loadDatabase: error - ${error.message}`, 'error');
+        return false;
+    }
+}
+
+// Test 1: Normal init flow (simulating current app.js)
+async function testInitFlow() {
+    log('=== Test: Normal Init Flow ===');
+    
+    // Check for cached database
+    const cachedDb = await loadDbFromCache();
+    
+    if (cachedDb) {
+        log('Cache found, loading...', 'success');
+        await loadDatabase(cachedDb);
+    } else {
+        log('No cache, showing loading screen');
+        document.getElementById('loading-screen').classList.add('active');
+    }
+}
+
+// Test 2: Save mock cache and reload
+async function testWithMockCache() {
+    log('=== Test: With Mock Cache ===');
+    const mockData = new Uint8Array([1, 2, 3, 4, 5]).buffer;
+    await saveDbToCache(mockData);
+    log('Mock cache saved', 'success');
+    
+    // Reload page to test
+    setTimeout(() => {
+        log('Reloading to test cache load...');
+        location.reload();
+    }, 1000);
+}
+
+// Run test on load
+window.onload = () => {
+    log('Page loaded');
+    
+    // Check if loading screen has active class initially
+    const loadingScreen = document.getElementById('loading-screen');
+    const hasActive = loadingScreen.classList.contains('active');
+    log(`Initial state: loading-screen has active=${hasActive}`);
+    
+    // Run the init flow
+    setTimeout(testInitFlow, 100);
+};
+
+// Add buttons
+const btnDiv = document.createElement('div');
+btnDiv.innerHTML = `
+    <button onclick="testWithMockCache()">Test with Mock Cache</button>
+    <button onclick="location.reload()">Reload Page</button>
+    <button onclick="document.getElementById('logs').innerHTML=''; logs.length=0;">Clear Logs</button>
+`;
+document.body.insertBefore(btnDiv, document.getElementById('logs'));
+</script>
+</body>
+</html>

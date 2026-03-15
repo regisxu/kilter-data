@@ -7,7 +7,7 @@ let filteredRecords = [];         // 筛选后的记录
 let displayedCount = 0;           // 已显示数量
 const PAGE_SIZE = 50;             // 每页显示数量
 
-// 初始化
+// Initialize
 async function init() {
     // File selection listener
     document.getElementById('db-file-input').addEventListener('change', handleFileSelect);
@@ -15,14 +15,18 @@ async function init() {
     // Initialize grade range slider
     onDiffChange();
 
+    // ALWAYS show loading screen first
+    // This ensures error messages are visible if cache loading fails
+    document.getElementById('loading-screen').classList.add('active');
+
     // Check for cached database
     const cachedDb = await loadDbFromCache();
     if (cachedDb) {
         // Load cached database
         await loadDatabase(cachedDb);
     } else {
-        // Show loading screen waiting for file selection
-        document.getElementById('loading-screen').classList.add('active');
+        // No cache - show file input
+        document.querySelector('.file-input-wrapper').style.display = 'block';
     }
 }
 
@@ -186,12 +190,13 @@ function parseQueryResult(result) {
 
 // 显示主界面
 function showMainScreen() {
-    // 完全移除 loading-screen
+    // Hide loading screen
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
-        loadingScreen.remove();
+        loadingScreen.classList.remove('active');
     }
     
+    // Show main screen
     document.getElementById('main-screen').classList.add('active');
     
     document.getElementById('total-count').textContent = `${allRecords.length} records`;

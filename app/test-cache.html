@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Test</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 8px; }
+        .pass { background: #d1fae5; color: #065f46; }
+        .fail { background: #fee2e2; color: #991b1b; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>IndexedDB Cache Test</h1>
+    <div id="results"></div>
+    <button onclick="runTests()">Run Tests</button>
+    <button onclick="clearCache()">Clear Cache</button>
+    <button onclick="mockSave()">Save Mock Data</button>
+
+<script>
+const DB_NAME = 'KilterLogbookDB';
+const STORE_NAME = 'database';
+const DB_KEY = 'kilterdb';
+
+async function openIndexedDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            db.createObjectStore(STORE_NAME);
+        };
+    });
+}
+
+async function saveDbToCache(arrayBuffer) {
+    const db = await openIndexedDB();
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    return new Promise((resolve, reject) => {
+        const request = store.put(arrayBuffer, DB_KEY);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function loadDbFromCache() {
+    try {
+        const db = await openIndexedDB();
+        const transaction = db.transaction(STORE_NAME, 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(DB_KEY);
+        
+        return new Promise((resolve) => {
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => resolve(null);
+        });
+    } catch (error) {
+        return null;
+    }
+}
+
+async function clearDbCache() {
+    try {
+        const db = await openIndexedDB();
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        await new Promise((resolve, reject) => {
+            const request = store.delete(DB_KEY);
+            request.onsuccess = resolve;
+            request.onerror = reject;
+        });
+    } catch (e) {
+        console.error('Clear cache failed:', e);
+    }
+}
+
+function addResult(name, passed, message) {
+    const div = document.createElement('div');
+    div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+    div.textContent = `${passed ? '✓' : '✗'} ${name}: ${message}`;
+    document.getElementById('results').appendChild(div);
+}
+
+async function runTests() {
+    document.getElementById('results').innerHTML = '';
+    
+    // Test 1: Check if IndexedDB is available
+    try {
+        const db = await openIndexedDB();
+        addResult('IndexedDB Open', true, 'Database opened successfully');
+    } catch (e) {
+        addResult('IndexedDB Open', false, e.message);
+        return;
+    }
+    
+    // Test 2: Save data to cache
+    const mockData = new Uint8Array([1, 2, 3, 4, 5]).buffer;
+    try {
+        await saveDbToCache(mockData);
+        addResult('Save Cache', true, 'Data saved successfully');
+    } catch (e) {
+        addResult('Save Cache', false, e.message);
+        return;
+    }
+    
+    // Test 3: Load data from cache
+    try {
+        const cached = await loadDbFromCache();
+        if (cached) {
+            const match = cached.byteLength === mockData.byteLength;
+            addResult('Load Cache', match, match ? 'Data loaded correctly' : 'Data size mismatch');
+        } else {
+            addResult('Load Cache', false, 'No data found in cache');
+        }
+    } catch (e) {
+        addResult('Load Cache', false, e.message);
+    }
+    
+    // Test 4: Check cache exists
+    const hasCache = await loadDbFromCache();
+    addResult('Cache Exists', !!hasCache, hasCache ? 'Cache is available' : 'Cache is empty');
+}
+
+async function clearCache() {
+    await clearDbCache();
+    addResult('Clear Cache', true, 'Cache cleared manually');
+}
+
+async function mockSave() {
+    const mockData = new Uint8Array([1, 2, 3, 4, 5]).buffer;
+    await saveDbToCache(mockData);
+    addResult('Mock Save', true, 'Mock data saved');
+}
+
+// Auto-run tests on load
+window.onload = runTests;
+</script>
+</body>
+</html>

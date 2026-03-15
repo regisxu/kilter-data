@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Load Test Suite</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #1f2937; }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            background: #f9fafb; 
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        .test-result { 
+            margin: 10px 0; 
+            padding: 12px; 
+            border-radius: 8px; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pass { background: #d1fae5; color: #065f46; }
+        .fail { background: #fee2e2; color: #991b1b; }
+        .info { background: #dbeafe; color: #1e40af; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 8px;
+            background: #6366f1;
+            color: white;
+            font-weight: 500;
+        }
+        button:hover { background: #4f46e5; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+        #test-app {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .screen { 
+            display: none; 
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            padding: 40px;
+            text-align: center;
+        }
+        .screen.active { display: flex; flex-direction: column; justify-content: center; }
+        .loading-screen { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); color: white; }
+        .main-screen { background: white; }
+        .file-input-wrapper { margin-top: 20px; }
+        #loading-status { margin-top: 10px; font-size: 14px; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Cache Load Test Suite</h1>
+    
+    <div class="test-section">
+        <h3>Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Actions</h3>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="simulateCacheSuccess()">Simulate: Cache Success</button>
+        <button onclick="simulateCacheFail()">Simulate: Cache Load Fail</button>
+        <button onclick="simulateNoCache()">Simulate: No Cache</button>
+        <button onclick="clearAll()">Clear Results & Reset</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Test App Preview</h3>
+        <div id="test-app">
+            <div id="loading-screen" class="screen loading-screen">
+                <h2>Loading...</h2>
+                <div id="loading-status"></div>
+                <div class="file-input-wrapper" style="display: none;">
+                    <button>Select File</button>
+                </div>
+            </div>
+            <div id="main-screen" class="screen main-screen">
+                <h2>Main Screen</h2>
+                <p>Data loaded successfully!</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+let testResults = [];
+
+function addResult(test, passed, message) {
+    testResults.push({ test, passed, message, time: new Date() });
+    
+    const div = document.createElement('div');
+    div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+    div.innerHTML = `
+        <span>${passed ? '✓' : '✗'}</span>
+        <div>
+            <strong>${test}</strong><br>
+            <small>${message}</small>
+        </div>
+    `;
+    document.getElementById('results').appendChild(div);
+}
+
+function clearAll() {
+    testResults = [];
+    document.getElementById('results').innerHTML = '';
+    resetApp();
+}
+
+function resetApp() {
+    document.getElementById('loading-screen').className = 'screen loading-screen';
+    document.getElementById('main-screen').className = 'screen main-screen';
+    document.getElementById('loading-status').textContent = '';
+    document.querySelector('.file-input-wrapper').style.display = 'none';
+}
+
+// Simulate the current init flow
+async function simulateInitFlow(hasCache, shouldFail = false) {
+    resetApp();
+    
+    // Current implementation - has BUG!
+    const cachedDb = hasCache ? new ArrayBuffer(10) : null;
+    
+    if (cachedDb) {
+        // Load cached database - BUG: loading screen not shown!
+        await simulateLoadDatabase(cachedDb, shouldFail);
+    } else {
+        // Show loading screen waiting for file selection
+        document.getElementById('loading-screen').classList.add('active');
+        addResult('No Cache Flow', true, 'Loading screen shown correctly');
+    }
+}
+
+// Fixed init flow
+async function simulateFixedInitFlow(hasCache, shouldFail = false) {
+    resetApp();
+    
+    // ALWAYS show loading screen first
+    document.getElementById('loading-screen').classList.add('active');
+    
+    const cachedDb = hasCache ? new ArrayBuffer(10) : null;
+    
+    if (cachedDb) {
+        await simulateLoadDatabase(cachedDb, shouldFail);
+    } else {
+        // Already showing loading screen
+        document.querySelector('.file-input-wrapper').style.display = 'block';
+        addResult('No Cache Flow (Fixed)', true, 'Loading screen shown, waiting for file');
+    }
+}
+
+async function simulateLoadDatabase(arrayBuffer, shouldFail) {
+    updateStatus('Initializing...');
+    await delay(300);
+    
+    if (shouldFail) {
+        updateStatus('Failed: Corrupted data');
+        document.querySelector('.file-input-wrapper').style.display = 'block';
+        addResult('Cache Load', false, 'Loading screen visible, error shown, file button available');
+        return;
+    }
+    
+    updateStatus('Loading data...');
+    await delay(300);
+    
+    showMainScreen();
+    addResult('Cache Load', true, 'Main screen shown successfully');
+}
+
+function updateStatus(msg) {
+    document.getElementById('loading-status').textContent = msg;
+}
+
+function showMainScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.classList.remove('active');
+    }
+    document.getElementById('main-screen').classList.add('active');
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Test scenarios
+async function simulateCacheSuccess() {
+    clearAll();
+    addResult('Scenario', true, 'Cache exists, load succeeds');
+    await simulateInitFlow(true);
+}
+
+async function simulateCacheFail() {
+    clearAll();
+    addResult('Scenario', true, 'Cache exists but load FAILS (BUG!)');
+    await simulateInitFlow(true, true);
+}
+
+async function simulateNoCache() {
+    clearAll();
+    addResult('Scenario', true, 'No cache, show file selector');
+    await simulateInitFlow(false);
+}
+
+async function runAllTests() {
+    clearAll();
+    
+    addResult('Test Suite', true, 'Starting tests...', 'info');
+    
+    // Test 1: Cache success with current implementation
+    await simulateInitFlow(true);
+    await delay(500);
+    
+    // Test 2: Cache failure with current implementation (SHOULD SHOW BUG)
+    resetApp();
+    await simulateInitFlow(true, true);
+    
+    addResult('Summary', true, 'See results above - cache failure case shows the bug', 'info');
+}
+
+// Initial info
+addResult('Info', true, 'Click "Simulate: Cache Load Fail" to see the bug', 'info');
+</script>
+</body>
+</html>
