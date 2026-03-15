@@ -18,40 +18,51 @@ async function runTests() {
     const testUrl = `file://${path.resolve(__dirname, 'run-tests.html')}`;
     await page.goto(testUrl);
     
-    // Wait for page to load
-    await page.waitForSelector('#test-suites');
+    // Wait for page to fully load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     
-    // Run all tests
-    await page.click('text=Run All Tests');
+    // Run all tests by clicking the button
+    await page.click('button:has-text("Run All Tests")');
     
-    // Wait for tests to complete (with timeout)
+    // Wait for tests to complete (check for completion indicator)
     const maxWait = 60000; // 60 seconds
     const startTime = Date.now();
     
     while (Date.now() - startTime < maxWait) {
-        const status = await page.evaluate(() => {
+        const completed = await page.evaluate(() => {
+            const totalEl = document.getElementById('total-count');
+            const completedEl = document.querySelector('.stat-card .stat-total');
             const statusEl = document.getElementById('overall-status');
-            return statusEl ? statusEl.textContent : '';
+            
+            // Check if tests have completed (no longer running)
+            const running = statusEl && statusEl.textContent === '🔄';
+            const hasResults = totalEl && parseInt(totalEl.textContent) > 0;
+            
+            return hasResults && !running;
         });
         
-        // Check if tests completed
-        if (status === '✅' || status === '❌') {
+        if (completed) {
             break;
         }
         
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 200));
     }
+    
+    // Give a moment for final updates
+    await page.waitForTimeout(500);
     
     // Get results
     const results = await page.evaluate(() => {
-        const total = document.getElementById('total-count').textContent;
-        const passed = document.getElementById('pass-count').textContent;
-        const failed = document.getElementById('fail-count').textContent;
-        const skipped = document.getElementById('skip-count').textContent;
+        const total = document.getElementById('total-count')?.textContent || '0';
+        const passed = document.getElementById('pass-count')?.textContent || '0';
+        const failed = document.getElementById('fail-count')?.textContent || '0';
+        const skipped = document.getElementById('skip-count')?.textContent || '0';
         
         // Get console output
         const consoleLines = Array.from(document.querySelectorAll('.console-line'))
-            .map(el => el.textContent);
+            .map(el => el.textContent)
+            .slice(-20); // Last 20 lines
         
         return { total, passed, failed, skipped, consoleLines };
     });
@@ -93,6 +104,7 @@ try {
 }
 
 runTests().catch(err => {
-    console.error('Test runner error:', err);
+    console.error('Test runner error:', err.message);
+    console.error(err.stack);
     process.exit(1);
 });
