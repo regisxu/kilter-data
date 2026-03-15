@@ -1,0 +1,15 @@
+{
+  "name": "kilter-app-tests",
+  "version": "1.0.0",
+  "description": "Automated test suite for Kilterboard Logbook app",
+  "scripts": {
+    "test": "node run-headless.js",
+    "test:ui": "echo 'Open run-tests.html in browser'",
+    "test:debug": "npx playwright test --headed"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  },
+  "keywords": ["testing", "kilterboard", "automation"],
+  "license": "MIT"
+}
