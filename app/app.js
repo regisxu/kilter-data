@@ -9,16 +9,19 @@ const PAGE_SIZE = 50;             // 每页显示数量
 
 // 初始化
 async function init() {
-    // 文件选择监听
+    // File selection listener
     document.getElementById('db-file-input').addEventListener('change', handleFileSelect);
+    
+    // Initialize grade range slider
+    onDiffChange();
 
-    // 检查是否有缓存的数据库
+    // Check for cached database
     const cachedDb = await loadDbFromCache();
     if (cachedDb) {
-        // 有缓存，直接加载，保持 loading-screen 显示（加载动画）
+        // Load cached database
         await loadDatabase(cachedDb);
     } else {
-        // 没有缓存，显示 loading-screen 等待用户选择文件
+        // Show loading screen waiting for file selection
         document.getElementById('loading-screen').classList.add('active');
     }
 }
@@ -422,17 +425,35 @@ function hideFilterPanel() {
     document.getElementById('filter-panel').classList.remove('active');
 }
 
-// 难度范围变化处理
+// Grade range change handler
 function onDiffChange() {
-    const min = parseInt(document.getElementById('diff-min').value);
-    const max = parseInt(document.getElementById('diff-max').value);
+    const minInput = document.getElementById('diff-min');
+    const maxInput = document.getElementById('diff-max');
+    const min = parseInt(minInput.value);
+    const max = parseInt(maxInput.value);
+    const minVal = parseInt(minInput.min);
+    const maxVal = parseInt(maxInput.max);
     
-    // 确保 min <= max
+    // Ensure min <= max
     if (min > max) {
-        document.getElementById('diff-min').value = max;
+        if (document.activeElement === minInput) {
+            minInput.value = max;
+        } else {
+            maxInput.value = min;
+        }
     }
     
-    // 更新标签显示
+    // Update fill bar
+    const rangeFill = document.getElementById('range-fill');
+    if (rangeFill) {
+        const totalRange = maxVal - minVal;
+        const leftPercent = ((parseInt(minInput.value) - minVal) / totalRange) * 100;
+        const rightPercent = ((parseInt(maxInput.value) - minVal) / totalRange) * 100;
+        rangeFill.style.left = leftPercent + '%';
+        rangeFill.style.width = (rightPercent - leftPercent) + '%';
+    }
+    
+    // Update labels
     document.getElementById('diff-min-label').textContent = getDifficultyLabel(min);
     document.getElementById('diff-max-label').textContent = getDifficultyLabel(max);
     

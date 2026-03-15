@@ -538,13 +538,13 @@ body {
 .diff-range-slider input[type="range"] {
     position: absolute;
     width: 100%;
-    pointer-events: none;
     -webkit-appearance: none;
     background: transparent;
     top: 0;
     left: 0;
     height: 32px;
     margin: 0;
+    pointer-events: none;
 }
 
 .diff-range-slider input[type="range"]:first-child {
@@ -556,7 +556,7 @@ body {
 }
 
 .diff-range-slider input[type="range"]:active {
-    z-index: 3 !important;
+    z-index: 10 !important;
 }
 
 .diff-range-slider input[type="range"]::-webkit-slider-runnable-track {
@@ -564,24 +564,48 @@ body {
     height: 6px;
     background: transparent;
     border-radius: 3px;
+    pointer-events: none;
 }
 
 .diff-range-slider input[type="range"]::-webkit-slider-thumb {
-    pointer-events: all;
+    -webkit-appearance: none;
+    pointer-events: auto;
     width: 24px;
     height: 24px;
     border-radius: 50%;
     background: var(--primary);
-    cursor: pointer;
-    -webkit-appearance: none;
+    cursor: grab;
     margin-top: -9px;
     box-shadow: var(--shadow-md);
-    border: 2px solid white;
-    transition: transform var(--transition-fast);
+    border: 3px solid white;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    position: relative;
+    z-index: 20;
 }
 
 .diff-range-slider input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
+    transform: scale(1.2);
+    box-shadow: var(--shadow-lg);
+}
+
+.diff-range-slider input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+.diff-range-slider input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: grab;
+    border: 3px solid white;
+    box-shadow: var(--shadow-md);
+}
+
+.diff-range-slider input[type="range"]::-moz-range-track {
+    background: transparent;
 }
 
 .diff-range-slider .range-inputs::before {
@@ -594,6 +618,16 @@ body {
     background: var(--slate-200);
     border-radius: 3px;
     z-index: 0;
+}
+
+.diff-range-slider .range-fill {
+    position: absolute;
+    top: 13px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 3px;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .btn-secondary {

@@ -54,9 +54,12 @@
                 <polyline points="23,4 23,10 17,10"/>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </symbol>
-            <!-- Thermometer / Angle -->
+            <!-- Protractor / Angle -->
             <symbol id="icon-angle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+                <path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/>
+                <path d="M12 21V10"/>
+                <path d="M12 10 7 3"/>
+                <path d="m12 10 5-7"/>
             </symbol>
             <!-- User -->
             <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -355,6 +358,7 @@
                             <span id="diff-max-label">V16+</span>
                         </div>
                         <div class="range-inputs">
+                            <div class="range-fill" id="range-fill"></div>
                             <input type="range" id="diff-min" min="10" max="33" value="10" oninput="onDiffChange()">
                             <input type="range" id="diff-max" min="10" max="33" value="33" oninput="onDiffChange()">
                         </div>
