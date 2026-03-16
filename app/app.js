@@ -62,24 +62,25 @@ async function loadDatabase(arrayBuffer) {
             throw new Error('SQL.js 库未加载，请检查网络连接');
         }
         
-        // 初始化 SQL.js
+        // Initialize SQL.js
         const SQL = await initSqlJs({
             locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
         });
         
-        showLoadingStatus('正在解析数据库...');
+        showLoadingStatus('Parsing database...');
         db = new SQL.Database(new Uint8Array(arrayBuffer));
         
-        showLoadingStatus('正在查询数据...');
-        // 查询数据（同步操作）
+        showLoadingStatus('Querying data...');
+        // Query data (sync operation)
         try {
             fetchData();
         } catch (queryError) {
             console.error('Query error:', queryError);
-            throw new Error(`查询数据失败: ${queryError.message}`);
+            throw new Error(`Query failed: ${queryError.message}`);
         }
         
-        // 切换到主界面
+        // Switch to main screen
+        console.log('[loadDatabase] Calling showMainScreen...');
         showMainScreen();
         
     } catch (error) {
@@ -188,20 +189,32 @@ function parseQueryResult(result) {
     });
 }
 
-// 显示主界面
+// Show main screen
 function showMainScreen() {
+    console.log('[showMainScreen] Starting...');
+    
     // Hide loading screen
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
         loadingScreen.classList.remove('active');
+        console.log('[showMainScreen] Removed active from loading-screen');
+    } else {
+        console.warn('[showMainScreen] loading-screen not found!');
     }
     
     // Show main screen
-    document.getElementById('main-screen').classList.add('active');
+    const mainScreen = document.getElementById('main-screen');
+    if (mainScreen) {
+        mainScreen.classList.add('active');
+        console.log('[showMainScreen] Added active to main-screen');
+    } else {
+        console.warn('[showMainScreen] main-screen not found!');
+    }
     
     document.getElementById('total-count').textContent = `${allRecords.length} records`;
     
     renderList();
+    console.log('[showMainScreen] Completed');
 }
 
 // 显示加载状态
