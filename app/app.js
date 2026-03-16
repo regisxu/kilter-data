@@ -633,13 +633,17 @@ function updateFilterBar() {
     }
     document.getElementById('filter-bar-diff').textContent = diffText;
     
-    // Search
-    const searchText = document.getElementById('filter-search').value.trim();
-    let nameText = 'All';
-    if (searchText) {
-        nameText = searchText.length > 6 ? searchText.slice(0, 6) + '...' : searchText;
+    // Search (optional, only if element exists)
+    const searchInput = document.getElementById('filter-search');
+    const nameDisplay = document.getElementById('filter-bar-name');
+    if (searchInput && nameDisplay) {
+        const searchText = searchInput.value.trim();
+        let nameText = 'All';
+        if (searchText) {
+            nameText = searchText.length > 6 ? searchText.slice(0, 6) + '...' : searchText;
+        }
+        nameDisplay.textContent = nameText;
     }
-    document.getElementById('filter-bar-name').textContent = nameText;
 }
 
 // 重置筛选
