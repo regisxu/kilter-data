@@ -1552,53 +1552,46 @@ window.addEventListener('resize', () => {
 
 // 重新加载数据库 - 清除缓存并重选文件
 async function reloadDatabase() {
-    // 清除IndexedDB缓存
-    try {
-        const idb = await openIndexedDB();
-        const transaction = idb.transaction(STORE_NAME, 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        await new Promise((resolve, reject) => {
-            const request = store.delete(DB_KEY);
-            request.onsuccess = resolve;
-            request.onerror = reject;
-        });
-    } catch (e) {
-        console.error('清除缓存失败:', e);
-    }
-    
-    // 重置状态
+    // Reset state
     db = null;
     allRecords = [];
     filteredRecords = [];
     displayedCount = 0;
     
-    // 清除统计页面
+    // Hide stats page
     const statsPage = document.getElementById('stats-page');
     if (statsPage) {
         statsPage.classList.remove('active');
     }
     disposeStatsCharts();
     
-    // 清除主界面内容
+    // Clear main screen content
     document.getElementById('record-list').innerHTML = '';
-    document.getElementById('total-count').textContent = '0 条记录';
+    document.getElementById('total-count').textContent = '0 records';
     document.getElementById('main-screen').classList.remove('active');
     
-    // 显示加载界面
+    // Show loading screen
     let loadingScreen = document.getElementById('loading-screen');
     if (!loadingScreen) {
+        // Recreate loading screen if it was removed
         loadingScreen = document.createElement('div');
         loadingScreen.id = 'loading-screen';
-        loadingScreen.className = 'screen';
+        loadingScreen.className = 'screen loading-screen';
         loadingScreen.innerHTML = `
             <div class="loading-content">
-                <h1>🧗 Kilterboard Logbook</h1>
+                <div class="logo-icon">
+                    <svg><use href="#icon-mountain"/></svg>
+                </div>
+                <h1>Kilterboard</h1>
+                <p>Track your climbing journey</p>
                 <div class="file-input-wrapper">
                     <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" />
                     <button class="btn-primary" onclick="document.getElementById('db-file-input').click()">
-                        📁 选择数据库文件
+                        <svg width="20" height="20"><use href="#icon-upload"/></svg>
+                        Select Database
                     </button>
                 </div>
+                <p class="hint">Supports .db, .sqlite, .sqlite3 files</p>
                 <div id="loading-status"></div>
             </div>
         `;
@@ -1607,8 +1600,17 @@ async function reloadDatabase() {
     
     loadingScreen.classList.add('active');
     
-    // 重新绑定文件选择事件
-    const fileInput = document.getElementById('db-file-input');
-    fileInput.value = '';
-    fileInput.addEventListener('change', handleFileSelect);
+    // Check for cached database and load automatically
+    const cachedDb = await loadDbFromCache();
+    if (cachedDb) {
+        // Load cached database automatically
+        await loadDatabase(cachedDb);
+    } else {
+        // No cache - show file input
+        document.querySelector('.file-input-wrapper').style.display = 'block';
+        // Re-bind file selection event
+        const fileInput = document.getElementById('db-file-input');
+        fileInput.value = '';
+        fileInput.addEventListener('change', handleFileSelect);
+    }
 }

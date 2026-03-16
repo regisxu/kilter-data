@@ -363,14 +363,17 @@
                 'cache_exists_check',
                 'init_flow_with_cache',
                 'init_flow_without_cache',
-                'init_flow_cache_error'
+                'init_flow_cache_error',
+                'reload_checks_cache'
             ], updateStats, log);
             
             await testFramework.runSuite('UI Components', [
                 'loading_screen_toggle',
                 'main_screen_display',
                 'filter_panel_toggle',
-                'modal_open_close'
+                'modal_open_close',
+                'screen_transition_after_load',
+                'main_screen_visible_after_init'
             ], updateStats, log);
             
             await testFramework.runSuite('Data Processing', [
