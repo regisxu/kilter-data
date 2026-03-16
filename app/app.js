@@ -1632,6 +1632,12 @@ async function reloadDatabase() {
     
     loadingScreen.classList.add('active');
     
+    // Clear any previous loading status
+    const loadingStatus = document.getElementById('loading-status');
+    if (loadingStatus) {
+        loadingStatus.textContent = '';
+    }
+    
     // Show file input button (cache is cleared, user must select file)
     document.querySelector('.file-input-wrapper').style.display = 'block';
     
