@@ -1567,8 +1567,23 @@ window.addEventListener('resize', () => {
     });
 });
 
-// 重新加载数据库 - 清除缓存并重选文件
+// Reload database - clear cache and force re-selection
 async function reloadDatabase() {
+    // Clear IndexedDB cache
+    try {
+        const idb = await openIndexedDB();
+        const transaction = idb.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        await new Promise((resolve, reject) => {
+            const request = store.delete(DB_KEY);
+            request.onsuccess = resolve;
+            request.onerror = reject;
+        });
+        console.log('[reloadDatabase] Cache cleared');
+    } catch (e) {
+        console.error('[reloadDatabase] Failed to clear cache:', e);
+    }
+    
     // Reset state
     db = null;
     allRecords = [];
@@ -1617,17 +1632,11 @@ async function reloadDatabase() {
     
     loadingScreen.classList.add('active');
     
-    // Check for cached database and load automatically
-    const cachedDb = await loadDbFromCache();
-    if (cachedDb) {
-        // Load cached database automatically
-        await loadDatabase(cachedDb);
-    } else {
-        // No cache - show file input
-        document.querySelector('.file-input-wrapper').style.display = 'block';
-        // Re-bind file selection event
-        const fileInput = document.getElementById('db-file-input');
-        fileInput.value = '';
-        fileInput.addEventListener('change', handleFileSelect);
-    }
+    // Show file input button (cache is cleared, user must select file)
+    document.querySelector('.file-input-wrapper').style.display = 'block';
+    
+    // Re-bind file selection event
+    const fileInput = document.getElementById('db-file-input');
+    fileInput.value = '';
+    fileInput.addEventListener('change', handleFileSelect);
 }
