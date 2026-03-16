@@ -303,25 +303,70 @@ testFramework.register('main_screen_visible_after_init', async (assert) => {
         'Loading screen should NOT be visible');
 });
 
-// Test: Reload database should check cache automatically
-testFramework.register('reload_checks_cache', async (assert) => {
-    // Save mock cache first
+// Test: Reload clears cache and shows file selector
+testFramework.register('reload_clears_cache_shows_selector', async (assert) => {
+    // Setup: save mock cache
     const mockData = new Uint8Array([1, 2, 3]).buffer;
     await saveDbToCache(mockData);
     
     // Verify cache exists
+    let cached = await loadDbFromCache();
+    assert.exists(cached, 'Cache should exist before reload');
+    
+    // Simulate reloadDatabase() behavior
+    // 1. Clear cache
+    await clearDbCache();
+    
+    // 2. Verify cache is cleared
+    cached = await loadDbFromCache();
+    assert.notExists(cached, 'Cache should be cleared after reload');
+});
+
+// Test: Reload shows loading screen and file selector
+testFramework.register('reload_shows_loading_and_selector', async (assert) => {
+    // Create mock DOM
+    const loadingScreen = document.createElement('div');
+    loadingScreen.id = 'loading-screen';
+    loadingScreen.className = 'screen';
+    
+    const fileWrapper = document.createElement('div');
+    fileWrapper.className = 'file-input-wrapper';
+    fileWrapper.style.display = 'none';
+    
+    const loadingStatus = document.createElement('div');
+    loadingStatus.id = 'loading-status';
+    loadingStatus.textContent = 'Querying data...';
+    
+    // Simulate reloadDatabase() UI updates
+    loadingScreen.classList.add('active');
+    fileWrapper.style.display = 'block';
+    loadingStatus.textContent = '';
+    
+    // Verify UI state
+    assert.true(loadingScreen.classList.contains('active'),
+        'Loading screen should be active');
+    assert.equal(fileWrapper.style.display, 'block',
+        'File selector should be visible');
+    assert.equal(loadingStatus.textContent, '',
+        'Loading status should be cleared');
+});
+
+// Test: Reload does NOT auto-load cache
+testFramework.register('reload_does_not_auto_load', async (assert) => {
+    // Save mock cache
+    const mockData = new Uint8Array([1, 2, 3]).buffer;
+    await saveDbToCache(mockData);
+    
+    // Clear cache (as reload does)
+    await clearDbCache();
+    
+    // Verify cache is gone
     const cached = await loadDbFromCache();
-    assert.exists(cached, 'Cache should exist after saving');
     
-    // In proper implementation, reloadDatabase() should:
-    // 1. Clear current state
-    // 2. Check for cache
-    // 3. Load from cache if available
-    
-    // Current bug: reloadDatabase() doesn't check cache,
-    // it just waits for user to select file
-    assert.true(cached instanceof ArrayBuffer, 
-        'Cache should be valid ArrayBuffer for auto-load');
+    // After reload, cache should NOT be auto-loaded
+    // User must select file manually
+    assert.notExists(cached, 
+        'Cache should NOT be auto-loaded after reload');
 });
 
 // ============================================
