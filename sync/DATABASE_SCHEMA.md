@@ -258,7 +258,43 @@ LEFT JOIN climb_stats cs ON b.climb_uuid = cs.climb_uuid AND b.angle = cs.angle;
 | DATETIME | 日期时间 | 时间戳 |
 | BOOLEAN | 布尔值 | 0/1 |
 
-## 7. 完整建表脚本
+## 7. 难度等级对照表
+
+数据库中 `difficulty` 字段为整数，表示 Fontainebleau 等级（法国难度系统）。以下为 difficulty 值与 Fontainebleau / V-grade 的对照表：
+
+| difficulty | Fontainebleau | V-grade |
+|------------|---------------|---------|
+| ≤ 10 | 4a | V0 |
+| 11 | 4b | V0 |
+| 12 | 4c | V0 |
+| 13 | 5a | V1 |
+| 14 | 5b | V1 |
+| 15 | 5c | V2 |
+| 16 | 6a | V3 |
+| 17 | 6a+ | V3 |
+| 18 | 6b | V4 |
+| 19 | 6b+ | V4 |
+| 20 | 6c | V5 |
+| 21 | 6c+ | V5 |
+| 22 | 7a | V6 |
+| 23 | 7a+ | V7 |
+| 24 | 7b | V8 |
+| 25 | 7b+ | V8 |
+| 26 | 7c | V9 |
+| 27 | 7c+ | V10 |
+| 28 | 8a | V11 |
+| 29 | 8a+ | V12 |
+| 30 | 8b | V13 |
+| 31 | 8b+ | V14 |
+| 32 | 8c | V15 |
+| ≥ 33 | 8c+ | V16+ |
+
+**使用说明：**
+- difficulty 值在显示前会先四舍五入到最接近的整数
+- 此对照表用于 `ascents` 表的 `difficulty` 字段和 `climb_stats` 表的 `difficulty_average` 字段
+- 例如：difficulty=16 表示 6a/V3 难度的线路
+
+## 8. 完整建表脚本
 
 ```sql
 -- 启用外键支持
@@ -359,7 +395,7 @@ CREATE INDEX IF NOT EXISTS idx_bids_climb ON bids(climb_uuid);
 CREATE INDEX IF NOT EXISTS idx_bids_climbed ON bids(climbed_at);
 ```
 
-## 8. 使用示例
+## 9. 使用示例
 
 ### 查询某年完成的线路
 ```sql
