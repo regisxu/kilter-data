@@ -640,7 +640,7 @@ function updateFilterBar() {
         const searchText = searchInput.value.trim();
         let nameText = 'All';
         if (searchText) {
-            nameText = searchText.length > 6 ? searchText.slice(0, 6) + '...' : searchText;
+            nameText = searchText.length > 25 ? searchText.slice(0, 25) + '...' : searchText;
         }
         nameDisplay.textContent = nameText;
     }
