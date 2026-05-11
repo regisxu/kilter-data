@@ -21,6 +21,7 @@ test.describe('统计页面基本功能', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
   });
 
@@ -72,6 +73,7 @@ test.describe('概览 Tab', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
     await app.openStats();
   });
@@ -140,6 +142,7 @@ test.describe('难度 Tab', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
     await app.openStats();
   });
@@ -187,6 +190,7 @@ test.describe('趋势 Tab', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
     await app.openStats();
   });
@@ -256,6 +260,7 @@ test.describe('SQL Tab', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
     await app.openStats();
   });
@@ -369,6 +374,7 @@ test.describe('Tab 切换和图表生命周期', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
     await app.openStats();
   });
@@ -414,6 +420,7 @@ test.describe('统计功能数据准确性', () => {
     app = new AppPage(page);
     await app.goto();
     await app.clearIndexedDBCache();
+    await app.goto();
     await app.loadDatabase('test-data.db');
   });
 

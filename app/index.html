@@ -270,29 +270,89 @@
 
             <!-- Filter Bar -->
             <div id="filter-bar" class="filter-bar">
-                <div class="filter-bar-item" onclick="showFilterPanel()">
+                <div class="filter-bar-item" data-popover="time-popover" onclick="toggleFilterPopover('time-popover')">
                     <span class="filter-label">Time</span>
                     <span id="filter-bar-time" class="filter-value">All</span>
                 </div>
-                <div class="filter-bar-item" onclick="showFilterPanel()">
+                <div class="filter-bar-item" data-popover="type-popover" onclick="toggleFilterPopover('type-popover')">
                     <span class="filter-label">Type</span>
                     <span id="filter-bar-type" class="filter-value">All</span>
                 </div>
-                <div class="filter-bar-item" onclick="showFilterPanel()">
+                <div class="filter-bar-item" data-popover="angle-popover" onclick="toggleFilterPopover('angle-popover')">
                     <span class="filter-label">Angle</span>
                     <span id="filter-bar-angle" class="filter-value">All</span>
                 </div>
-                <div class="filter-bar-item" onclick="showFilterPanel()">
+                <div class="filter-bar-item" data-popover="grade-popover" onclick="toggleFilterPopover('grade-popover')">
                     <span class="filter-label">Grade</span>
                     <span id="filter-bar-diff" class="filter-value">All</span>
                 </div>
-                <div class="filter-bar-item" onclick="showFilterPanel()">
+                <div class="filter-bar-item" onclick="focusNameFilter()">
                     <span class="filter-label">Name</span>
                     <span id="filter-bar-name" class="filter-value">All</span>
+                    <input type="text" id="filter-bar-name-input" class="filter-value-input" placeholder="Search..." onblur="onNameFilterBlur()" onkeydown="if(event.key==='Enter'){this.blur();}" oninput="onNameFilterInput(this)" style="display:none;">
                 </div>
                 <button class="btn-icon filter-btn" onclick="showFilterPanel()">
                     <svg><use href="#icon-filter"/></svg>
                 </button>
+            </div>
+
+            <!-- Filter Popovers -->
+            <div id="time-popover" class="filter-popover">
+                <div class="popover-options time-options">
+                    <button data-value="all" onclick="onPopoverTimeChange('all')">All</button>
+                    <button data-value="7" onclick="onPopoverTimeChange('7')">7d</button>
+                    <button data-value="30" onclick="onPopoverTimeChange('30')">30d</button>
+                    <button data-value="90" onclick="onPopoverTimeChange('90')">90d</button>
+                    <button data-value="365" onclick="onPopoverTimeChange('365')">1y</button>
+                    <button data-value="custom" onclick="onPopoverTimeChange('custom')">Custom</button>
+                </div>
+                <div id="time-popover-custom" class="custom-date-range" style="display: none; margin-top: 12px;">
+                    <input type="date" id="popover-date-start" onchange="onPopoverCustomDateChange()">
+                    <span>to</span>
+                    <input type="date" id="popover-date-end" onchange="onPopoverCustomDateChange()">
+                </div>
+            </div>
+
+            <div id="type-popover" class="filter-popover">
+                <div class="popover-options type-options">
+                    <button data-type="all" onclick="onPopoverTypeChange('all')">All</button>
+                    <button data-type="ascent" onclick="onPopoverTypeChange('ascent')">Sent</button>
+                    <button data-type="bid" onclick="onPopoverTypeChange('bid')">Attempts</button>
+                </div>
+            </div>
+
+            <div id="angle-popover" class="filter-popover">
+                <div class="checkbox-group angles-popover">
+                    <label><input type="checkbox" value="0" checked onchange="onPopoverAngleChange(this)"> 0°</label>
+                    <label><input type="checkbox" value="5" checked onchange="onPopoverAngleChange(this)"> 5°</label>
+                    <label><input type="checkbox" value="10" checked onchange="onPopoverAngleChange(this)"> 10°</label>
+                    <label><input type="checkbox" value="15" checked onchange="onPopoverAngleChange(this)"> 15°</label>
+                    <label><input type="checkbox" value="20" checked onchange="onPopoverAngleChange(this)"> 20°</label>
+                    <label><input type="checkbox" value="25" checked onchange="onPopoverAngleChange(this)"> 25°</label>
+                    <label><input type="checkbox" value="30" checked onchange="onPopoverAngleChange(this)"> 30°</label>
+                    <label><input type="checkbox" value="35" checked onchange="onPopoverAngleChange(this)"> 35°</label>
+                    <label><input type="checkbox" value="40" checked onchange="onPopoverAngleChange(this)"> 40°</label>
+                    <label><input type="checkbox" value="45" checked onchange="onPopoverAngleChange(this)"> 45°</label>
+                    <label><input type="checkbox" value="50" checked onchange="onPopoverAngleChange(this)"> 50°</label>
+                    <label><input type="checkbox" value="55" checked onchange="onPopoverAngleChange(this)"> 55°</label>
+                    <label><input type="checkbox" value="60" checked onchange="onPopoverAngleChange(this)"> 60°</label>
+                    <label><input type="checkbox" value="65" checked onchange="onPopoverAngleChange(this)"> 65°</label>
+                    <label><input type="checkbox" value="70" checked onchange="onPopoverAngleChange(this)"> 70°</label>
+                </div>
+            </div>
+
+            <div id="grade-popover" class="filter-popover">
+                <div class="diff-range-slider">
+                    <div class="diff-range-labels">
+                        <span id="grade-popover-min-label">V0</span>
+                        <span id="grade-popover-max-label">V16+</span>
+                    </div>
+                    <div class="range-inputs">
+                        <div class="range-fill" id="grade-popover-range-fill"></div>
+                        <input type="range" id="grade-popover-min" min="10" max="33" value="10" oninput="onPopoverDiffChange()">
+                        <input type="range" id="grade-popover-max" min="10" max="33" value="33" oninput="onPopoverDiffChange()">
+                    </div>
+                </div>
             </div>
 
             <!-- Filter Panel -->
@@ -309,11 +369,6 @@
                         <option value="30">Last 30 Days</option>
                         <option value="90">Last 90 Days</option>
                         <option value="365">Last Year</option>
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
                         <option value="custom">Custom...</option>
                     </select>
                     <div id="custom-date-range" class="custom-date-range" style="display: none;">

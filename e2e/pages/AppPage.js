@@ -46,6 +46,18 @@ class AppPage {
     this.filterSearch = page.locator('#filter-search');
     this.resetFiltersButton = page.getByRole('button', { name: /reset filters/i });
     
+    // Filter bar popover elements
+    this.timePopover = page.locator('#time-popover');
+    this.typePopover = page.locator('#type-popover');
+    this.anglePopover = page.locator('#angle-popover');
+    this.gradePopover = page.locator('#grade-popover');
+    this.timeFilterBarItem = page.locator('.filter-bar-item[data-popover="time-popover"]');
+    this.typeFilterBarItem = page.locator('.filter-bar-item[data-popover="type-popover"]');
+    this.angleFilterBarItem = page.locator('.filter-bar-item[data-popover="angle-popover"]');
+    this.gradeFilterBarItem = page.locator('.filter-bar-item[data-popover="grade-popover"]');
+    this.nameFilterValue = page.locator('#filter-bar-name');
+    this.nameFilterInput = page.locator('#filter-bar-name-input');
+    
     // Detail modal
     this.detailModal = page.locator('#detail-modal');
     this.modalCloseButton = page.locator('.modal-close');
@@ -285,6 +297,40 @@ class AppPage {
    */
   async waitForCharts() {
     await this.page.waitForTimeout(1000); // Charts need time to render
+  }
+
+  /**
+   * Select time option from filter bar popover
+   */
+  async selectTimeFromPopover(value) {
+    await this.page.locator(`#time-popover button[data-value="${value}"]`).click();
+    await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * Select type option from filter bar popover
+   */
+  async selectTypeFromPopover(type) {
+    await this.page.locator(`#type-popover button[data-type="${type}"]`).click();
+    await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * Toggle angle checkbox in filter bar popover
+   */
+  async toggleAngleInPopover(angle) {
+    await this.page.locator(`.angles-popover input[value="${angle}"]`).click();
+    await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * Search by name inline in filter bar
+   */
+  async searchNameInline(name) {
+    await this.nameFilterValue.click();
+    await this.nameFilterInput.fill(name);
+    await this.nameFilterInput.blur();
+    await this.page.waitForTimeout(300);
   }
 }
 

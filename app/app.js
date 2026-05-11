@@ -443,6 +443,216 @@ function hideFilterPanel() {
     document.getElementById('filter-panel').classList.remove('active');
 }
 
+// Popover 通用管理
+function toggleFilterPopover(id) {
+    const popover = document.getElementById(id);
+    const isActive = popover.classList.contains('active');
+    
+    // 关闭所有 popover
+    hideAllPopovers();
+    
+    if (!isActive) {
+        // 同步数据
+        if (id === 'time-popover') syncTimePopover();
+        else if (id === 'type-popover') syncTypePopover();
+        else if (id === 'angle-popover') syncAnglePopover();
+        else if (id === 'grade-popover') syncGradePopover();
+        
+        popover.classList.add('active');
+        
+        // 点击外部关闭
+        document.removeEventListener('click', onAnyPopoverOutsideClick);
+        setTimeout(() => {
+            document.addEventListener('click', onAnyPopoverOutsideClick);
+        }, 0);
+    }
+}
+
+function hideAllPopovers() {
+    document.querySelectorAll('.filter-popover').forEach(p => p.classList.remove('active'));
+    document.removeEventListener('click', onAnyPopoverOutsideClick);
+}
+
+function onAnyPopoverOutsideClick(e) {
+    const activePopover = document.querySelector('.filter-popover.active');
+    if (!activePopover) return;
+    
+    const triggerItem = document.querySelector(`.filter-bar-item[data-popover="${activePopover.id}"]`);
+    if (!activePopover.contains(e.target) && (!triggerItem || !triggerItem.contains(e.target))) {
+        hideAllPopovers();
+    }
+}
+
+// Time Popover
+function syncTimePopover() {
+    const timeFilter = document.getElementById('filter-time').value;
+    document.querySelectorAll('#time-popover button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === timeFilter);
+    });
+    
+    const customArea = document.getElementById('time-popover-custom');
+    if (timeFilter === 'custom') {
+        customArea.style.display = 'flex';
+        document.getElementById('popover-date-start').value = document.getElementById('date-start').value;
+        document.getElementById('popover-date-end').value = document.getElementById('date-end').value;
+    } else {
+        customArea.style.display = 'none';
+    }
+}
+
+function onPopoverTimeChange(value) {
+    document.getElementById('filter-time').value = value;
+    onTimeFilterChange();
+    
+    if (value === 'custom') {
+        syncTimePopover();
+    } else {
+        hideAllPopovers();
+    }
+}
+
+function onPopoverCustomDateChange() {
+    document.getElementById('date-start').value = document.getElementById('popover-date-start').value;
+    document.getElementById('date-end').value = document.getElementById('popover-date-end').value;
+    applyFilters();
+}
+
+// Type Popover
+function syncTypePopover() {
+    const ascent = document.getElementById('filter-ascent').checked;
+    const bid = document.getElementById('filter-bid').checked;
+    let activeType = 'all';
+    if (ascent && !bid) activeType = 'ascent';
+    else if (!ascent && bid) activeType = 'bid';
+    document.querySelectorAll('#type-popover button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === activeType);
+    });
+}
+
+function onPopoverTypeChange(type) {
+    const ascent = document.getElementById('filter-ascent');
+    const bid = document.getElementById('filter-bid');
+    if (type === 'all') {
+        ascent.checked = true;
+        bid.checked = true;
+    } else if (type === 'ascent') {
+        ascent.checked = true;
+        bid.checked = false;
+    } else if (type === 'bid') {
+        ascent.checked = false;
+        bid.checked = true;
+    }
+    applyFilters();
+    hideAllPopovers();
+}
+
+// Angle Popover
+function syncAnglePopover() {
+    const panelAngles = document.querySelectorAll('.angles input[type="checkbox"]');
+    const popoverAngles = document.querySelectorAll('.angles-popover input[type="checkbox"]');
+    
+    const checkedValues = new Set();
+    panelAngles.forEach(cb => {
+        if (cb.checked) checkedValues.add(cb.value);
+    });
+    
+    popoverAngles.forEach(cb => {
+        cb.checked = checkedValues.has(cb.value);
+    });
+}
+
+function onPopoverAngleChange(checkbox) {
+    const panelCb = document.querySelector(`.angles input[type="checkbox"][value="${checkbox.value}"]`);
+    if (panelCb) {
+        panelCb.checked = checkbox.checked;
+    }
+    applyFilters();
+}
+
+// Grade Popover
+function syncGradePopover() {
+    const minInput = document.getElementById('diff-min');
+    const maxInput = document.getElementById('diff-max');
+    const popoverMin = document.getElementById('grade-popover-min');
+    const popoverMax = document.getElementById('grade-popover-max');
+    popoverMin.value = minInput.value;
+    popoverMax.value = maxInput.value;
+    updateGradePopoverUI();
+}
+
+function onPopoverDiffChange() {
+    const popoverMin = document.getElementById('grade-popover-min');
+    const popoverMax = document.getElementById('grade-popover-max');
+    const panelMin = document.getElementById('diff-min');
+    const panelMax = document.getElementById('diff-max');
+    
+    let min = parseInt(popoverMin.value);
+    let max = parseInt(popoverMax.value);
+    
+    if (min > max) {
+        if (document.activeElement === popoverMin) {
+            popoverMin.value = max;
+        } else {
+            popoverMax.value = min;
+        }
+    }
+    
+    panelMin.value = popoverMin.value;
+    panelMax.value = popoverMax.value;
+    
+    updateGradePopoverUI();
+    onDiffChange();
+}
+
+function updateGradePopoverUI() {
+    const minInput = document.getElementById('grade-popover-min');
+    const maxInput = document.getElementById('grade-popover-max');
+    const minVal = parseInt(minInput.min);
+    const maxVal = parseInt(maxInput.max);
+    const min = parseInt(minInput.value);
+    const max = parseInt(maxInput.value);
+    
+    const rangeFill = document.getElementById('grade-popover-range-fill');
+    if (rangeFill) {
+        const totalRange = maxVal - minVal;
+        const leftPercent = ((min - minVal) / totalRange) * 100;
+        const rightPercent = ((max - minVal) / totalRange) * 100;
+        rangeFill.style.left = leftPercent + '%';
+        rangeFill.style.width = (rightPercent - leftPercent) + '%';
+    }
+    
+    document.getElementById('grade-popover-min-label').textContent = getDifficultyLabel(min);
+    document.getElementById('grade-popover-max-label').textContent = getDifficultyLabel(max);
+}
+
+// Name filter inline
+function focusNameFilter() {
+    const span = document.getElementById('filter-bar-name');
+    const input = document.getElementById('filter-bar-name-input');
+    if (!span || !input) return;
+    
+    span.style.display = 'none';
+    input.style.display = 'block';
+    input.value = document.getElementById('filter-search').value;
+    input.focus();
+    input.select();
+}
+
+function onNameFilterInput(input) {
+    document.getElementById('filter-search').value = input.value;
+    applyFilters();
+}
+
+function onNameFilterBlur() {
+    const span = document.getElementById('filter-bar-name');
+    const input = document.getElementById('filter-bar-name-input');
+    if (!span || !input) return;
+    
+    input.style.display = 'none';
+    span.style.display = 'block';
+    updateFilterBar();
+}
+
 // Grade range change handler
 function onDiffChange() {
     const minInput = document.getElementById('diff-min');
@@ -589,11 +799,7 @@ function updateFilterBar() {
             '30': '30d',
             '90': '90d',
             '365': '1y',
-            '2026': '2026',
-            '2025': '2025',
-            '2024': '2024',
-            '2023': '2023',
-            '2022': '2022'
+            'custom': 'Custom'
         };
         timeText = timeMap[timeFilter] || timeFilter;
     }

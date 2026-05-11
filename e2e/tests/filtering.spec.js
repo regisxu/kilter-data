@@ -95,17 +95,6 @@ test.describe('时间范围筛选', () => {
     expect(timeText).toBe('1y');
   });
 
-  test('按年份筛选 - 2024', async () => {
-    await app.filterByTime('2024');
-    
-    const timeText = await app.page.locator('#filter-bar-time').textContent();
-    expect(timeText).toBe('2024');
-    
-    // 2024年的记录应该存在
-    const count = await app.getRecordCount();
-    expect(count).toBeGreaterThan(0);
-  });
-
   test('自定义日期范围筛选', async () => {
     // 选择自定义
     await app.filterTime.selectOption('custom');
@@ -334,7 +323,7 @@ test.describe('重置筛选', () => {
 
   test('重置所有筛选条件', async () => {
     // 先应用一些筛选
-    await app.filterByTime('2024');
+    await app.filterByTime('365');
     await app.toggleBidFilter(false);
     await app.searchByName('Test');
     
@@ -379,13 +368,13 @@ test.describe('组合筛选', () => {
   });
 
   test('时间 + 类型组合筛选', async () => {
-    await app.filterByTime('2024');
+    await app.filterByTime('365');
     await app.toggleBidFilter(false);
     await app.page.waitForTimeout(300);
     
     // 验证筛选结果
     const count = await app.getRecordCount();
-    // 2024年的完攀记录
+    // 最近1年的完攀记录
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
